@@ -1,0 +1,45 @@
+---
+name: Go
+on: [push]
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-10.15
+            shasum: shasum -a 512
+          - os: ubuntu-20.04
+            shasum: sha512sum
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19.0
+      - name: Unit tests
+        run: go test ./... -cover
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+      - name: Set YAAM deliverable environment variable
+        run: echo "yaam-deliverable=yaam-${{ matrix.os }}" >> $GITHUB_ENV
+      - name: Use the value
+        run: |
+          echo "${{ env.yaam-deliverable }}"
+      - name: Build
+        run: |
+          cd cmd/yaam
+          go build -buildvcs=false -ldflags "-X main.Version=${GITHUB_TAG}" -o \
+            ${{ env.yaam-deliverable }}
+          ${{ matrix.shasum }} ${{ env.yaam-deliverable }} \
+            >${{ env.yaam-deliverable }}.sha512.txt
+          chmod +x ${{ env.yaam-deliverable }}
+          cd ../..
+      - name: Quality
+        run: |
+          docker run --rm -v ${PWD}:/data markdownlint/markdownlint:0.11.0 \
+            README.md -s /data/configs/.markdownlint.rb
+          docker run --rm -v $(pwd):/data cytopia/yamllint:1.26-0.8 .
+          docker run --rm -v $(pwd):/app -w /app -e GOFLAGS=-buildvcs=false \
+            golangci/golangci-lint:v1.48.0-alpine golangci-lint run -v \
+            --timeout 2m30s
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}

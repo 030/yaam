@@ -1,0 +1,98 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: conf
+data:
+  repositories.yaml: |-
+    mavenReposAndUrls:
+      3rdparty-maven: https://repo1.maven.org/maven2/
+      3rdparty-maven-gradle-plugins: https://plugins.gradle.org/m2/
+---
+apiVersion: v1
+data:
+  user: aGVsbG8K
+  pass: d29ybGQK
+kind: Secret
+metadata:
+  name: creds
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: yaam
+spec:
+  rules:
+    - host: yaam.some.domain
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: yaam
+              servicePort: 25213
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yaam
+  labels:
+    app: yaam
+spec:
+  ports:
+    - port: 25213
+      name: yaam
+  clusterIP: None
+  selector:
+    app: yaam
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: yaam
+  labels:
+    app: yaam
+spec:
+  serviceName: yaam
+  selector:
+    matchLabels:
+      app: yaam
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: yaam
+    spec:
+      containers:
+        - name: yaam
+          env:
+            - name: YAAM_USER
+              valueFrom:
+                secretKeyRef:
+                  name: creds
+                  key: user
+            - name: YAAM_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: creds
+                  key: pass
+          image: utrecht/yaam:0.2.0
+          ports:
+            - containerPort: 25213
+              name: yaam
+          volumeMounts:
+            - name: conf
+              mountPath: /opt/yaam/.yaam/conf
+            - name: repositories
+              mountPath: /opt/yaam/.yaam/repositories
+      volumes:
+        - name: conf
+          configMap:
+            name: conf
+  volumeClaimTemplates:
+    - metadata:
+        name: repositories
+      spec:
+        accessModes: ['ReadWriteOnce']
+        resources:
+          requests:
+            storage: 100Mi
