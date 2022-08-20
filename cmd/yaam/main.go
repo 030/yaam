@@ -12,6 +12,8 @@ import (
 
 const port = 25213
 
+var Version string
+
 func httpInternalServerErrorReadTheLogs(w http.ResponseWriter) {
 	http.Error(w, "check the server logs", http.StatusInternalServerError)
 }
@@ -62,7 +64,7 @@ func main() {
 
 	http.HandleFunc("/", handler)
 
-	log.Infof("Starting YAAM on localhost on port: '%d'...", port)
+	log.Infof("Starting YAAM version: '%s' on localhost on port: '%d'...", Version, port)
 	if err := http.ListenAndServe(":"+strconv.Itoa(port), nil); err != nil {
 		log.Fatal(err)
 	}

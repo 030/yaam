@@ -26,14 +26,10 @@ jobs:
         run: |
           echo "${{ env.yaam-deliverable }}"
       - name: Build
-        run: |
-          cd cmd/yaam
-          go build -buildvcs=false -ldflags "-X main.Version=${GITHUB_TAG}" -o \
-            ${{ env.yaam-deliverable }}
-          ${{ matrix.shasum }} ${{ env.yaam-deliverable }} \
-            >${{ env.yaam-deliverable }}.sha512.txt
-          chmod +x ${{ env.yaam-deliverable }}
-          cd ../..
+        run: ./scripts/build.sh
+        env:
+          YAAM_DELIVERABLE: ${{ env.yaam-deliverable }}
+          SHA512_CMD: ${{ matrix.shasum }}
       - name: Quality
         run: |
           docker run --rm -v ${PWD}:/data markdownlint/markdownlint:0.11.0 \
