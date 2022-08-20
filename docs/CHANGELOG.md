@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- debug logging option.
+- line number to logging.
+
+### Changed
+
+- empty YAAM version number in docker container to the real actual version.
+- only show log if file is downloaded.
+
 ## [0.2.0] - 2022-08-20
 
 ### Added

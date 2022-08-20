@@ -1,4 +1,5 @@
 FROM golang:1.19.0-alpine3.16 as builder
+ARG VERSION
 ENV USERNAME=yaam
 ENV BASE=/opt/${USERNAME}
 COPY . /go/${USERNAME}/

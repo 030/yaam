@@ -42,7 +42,7 @@ func Download(f string, url string) (err error) {
 		if err != nil {
 			return err
 		}
-		log.Info(w)
+		log.Infof("downloaded: '%s' to: '%s'. Wrote: '%d' bytes", url, f, w)
 	}
 
 	return nil

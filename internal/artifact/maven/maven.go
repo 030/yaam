@@ -9,7 +9,6 @@ import (
 
 	"github.com/030/yaam/internal/file"
 	"github.com/030/yaam/internal/pkg/project"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -39,11 +38,9 @@ func cache(repo, repoURL string, reqURL *url.URL) error {
 		}
 
 		completeFile := filepath.Join(prh, reqURLString)
-		log.Info(completeFile)
 		if err := file.Download(completeFile, downloadURL); err != nil {
 			return err
 		}
-		log.Infof("downloaded: '%s' to: '%s'", downloadURL, completeFile)
 	}
 
 	return nil

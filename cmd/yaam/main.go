@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/030/yaam/internal/api"
@@ -57,10 +58,15 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	log.SetReportCaller(true)
 	log.SetFormatter(&log.TextFormatter{
 		DisableColors: true,
 		FullTimestamp: true,
 	})
+
+	if os.Getenv("YAAM_DEBUG") == "true" {
+		log.SetLevel(log.DebugLevel)
+	}
 
 	http.HandleFunc("/", handler)
 

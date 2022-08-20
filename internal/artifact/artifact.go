@@ -18,8 +18,9 @@ func ReadFromDisk(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	completeFile := filepath.Join(prh, r.URL.String())
-	b, err := os.ReadFile(filepath.Clean(completeFile))
+	f := filepath.Join(prh, r.URL.String())
+	log.Debugf("reading file: '%s' from disk...", f)
+	b, err := os.ReadFile(filepath.Clean(f))
 	if err != nil {
 		return err
 	}
