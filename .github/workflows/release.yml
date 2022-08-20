@@ -33,7 +33,7 @@ jobs:
           version=$(echo "${{ github.ref }}" | sed -e "s|.*\/\(.*\)$|\1|")
           echo "Version: ${version}"
           echo "Checking README.md..."
-          grep "yaam:${version}" README.md
+          grep "yaam:${version}" docs/usage/DOCKER.md
         # yamllint disable rule:line-length
         if: ${{ startsWith(matrix.os, 'mac') || startsWith(matrix.os, 'ubuntu') }}
       - name: Create release
