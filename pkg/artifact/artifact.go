@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/030/yaam/internal/pkg/project"
+	"github.com/030/yaam/pkg/project"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -30,7 +30,6 @@ func ReadFromDisk(w http.ResponseWriter, r *http.Request) error {
 
 	return nil
 }
-
 func storeOnDisk(dir, artifactPathUri string, content io.ReadCloser) error {
 	prh, err := project.RepositoriesHome()
 	if err != nil {

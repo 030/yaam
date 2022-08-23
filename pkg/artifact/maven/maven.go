@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/030/yaam/internal/file"
-	"github.com/030/yaam/internal/pkg/project"
+	"github.com/030/yaam/pkg/file"
+	"github.com/030/yaam/pkg/project"
 	"github.com/spf13/viper"
 )
 

@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/030/yaam/internal/api"
-	"github.com/030/yaam/internal/artifact"
-	"github.com/030/yaam/internal/artifact/maven"
+	"github.com/030/yaam/pkg/artifact"
+	"github.com/030/yaam/pkg/artifact/maven"
 	log "github.com/sirupsen/logrus"
 )
 
