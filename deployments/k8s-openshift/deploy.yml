@@ -97,7 +97,7 @@ spec:
                 secretKeyRef:
                   name: creds
                   key: pass
-          image: utrecht/yaam:0.2.1
+          image: utrecht/yaam:v0.2.1
           readinessProbe:
             tcpSocket:
               port: 25213
