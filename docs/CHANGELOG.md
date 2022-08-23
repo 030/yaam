@@ -11,11 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - debug logging option.
 - line number to logging.
+- resource requests and limits to k8s and openshift deployment.
+- health and readiness check to k8s deployment.
 
 ### Changed
 
 - empty YAAM version number in docker container to the real actual version.
 - only show log if file is downloaded.
+- volume templates to emptyDir in k8s and openshift deployment.
+- the origin of various functions to pkg to ensure they can be imported as a
+  library by external resources.
 
 ## [0.2.0] - 2022-08-20
 
