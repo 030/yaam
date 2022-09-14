@@ -1,0 +1,5 @@
+---
+extends: default
+
+ignore: |
+  test/npm/demo/node_modules/

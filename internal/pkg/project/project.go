@@ -1,9 +1,11 @@
 package project
 
 import (
+	"os"
 	"path/filepath"
 
 	"github.com/mitchellh/go-homedir"
+	log "github.com/sirupsen/logrus"
 )
 
 const hiddenFolderName = ".yaam"
@@ -14,6 +16,11 @@ func Home() (string, error) {
 		return "", err
 	}
 	yh := filepath.Join(h, hiddenFolderName)
+
+	if os.Getenv("YAAM_HOME") != "" {
+		yh = os.Getenv("YAAM_HOME")
+	}
+	log.Debugf("yaam home: '%s'", yh)
 
 	return yh, nil
 }

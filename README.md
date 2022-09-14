@@ -31,6 +31,7 @@
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=030_yaam&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=030_yaam)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=030_yaam&metric=security_rating)](https://sonarcloud.io/dashboard?id=030_yaam)
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=030_yaam&metric=sqale_index)](https://sonarcloud.io/dashboard?id=030_yaam)
+[![codecov](https://codecov.io/gh/030/yaam/branch/main/graph/badge.svg)](https://codecov.io/gh/030/yaam)
 [![BCH compliance](https://bettercodehub.com/edge/badge/030/yaam?branch=main)](https://bettercodehub.com/results/030/yaam)
 [![GolangCI](https://golangci.com/badges/github.com/golangci/golangci-web.svg)](https://golangci.com/r/github.com/030/yaam)
 [![codebeat badge](https://codebeat.co/badges/af6b1a01-df2c-40e7-bfb1-13ec0bb90087)](https://codebeat.co/projects/github-com-030-yaam-main)

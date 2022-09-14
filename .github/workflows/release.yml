@@ -1,20 +1,13 @@
 ---
 name: Release
-on:
+'on':
   push:
     tags:
       - '*'
 jobs:
   release:
     name: Create Release
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: macos-10.15
-            shasum: shasum -a 512
-          - os: ubuntu-20.04
-            shasum: sha512sum
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - name: Set up Go
@@ -22,9 +15,7 @@ jobs:
         with:
           go-version: 1.19.0
       - name: Set YAAM deliverable environment variable
-        run: echo "yaam-deliverable=yaam-${{ matrix.os }}" >> $GITHUB_ENV
-        if: |
-          ${{ startsWith(matrix.os, 'mac') || startsWith(matrix.os, 'ubuntu') }}
+        run: echo "yaam-deliverable=yaam-ubuntu-20.04" >> $GITHUB_ENV
       - name: Use the value
         run: |
           echo "${{ env.yaam-deliverable }}"
@@ -34,27 +25,12 @@ jobs:
           echo "Version: ${version}"
           echo "Checking README.md..."
           grep "yaam:${version}" docs/usage/DOCKER.md
-        # yamllint disable rule:line-length
-        if: ${{ startsWith(matrix.os, 'mac') || startsWith(matrix.os, 'ubuntu') }}
       - name: Create release
         run: ./scripts/build.sh
         env:
           YAAM_DELIVERABLE: ${{ env.yaam-deliverable }}
           GITHUB_TAG: ${{ github.ref }}
-          SHA512_CMD: ${{ matrix.shasum }}
-        if: ${{ startsWith(matrix.os, 'mac') || startsWith(matrix.os, 'ubuntu') }}
-      - name: Create release windows
-        shell: cmd
-        run: |
-          echo "GITHUB_TAG: '${{ github.ref }}'"
-          echo "YAAM_DELIVERABLE: '${{ env.yaam-deliverable }}'"
-          cd cmd/yaam
-          go build -buildvcs=false -ldflags "-X main.Version=${{ github.ref }}" -o "${{ env.yaam-deliverable }}"
-          sha512sum "${{ env.yaam-deliverable }}" > "${{ env.yaam-deliverable }}.sha512.txt"
-          chmod +x "${{ env.yaam-deliverable }}"
-          ls yaam-windows-2019
-        if: ${{ startsWith(matrix.os, 'windows') }}
-        # yamllint enable rule:line-length
+          SHA512_CMD: sha512sum
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:

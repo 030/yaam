@@ -1,58 +1,133 @@
 package main
 
 import (
+	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/030/yaam/internal/api"
-	"github.com/030/yaam/pkg/artifact"
-	"github.com/030/yaam/pkg/artifact/maven"
+	"github.com/030/yaam/internal/artifact"
+	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
 
-const port = 25213
+const (
+	serverLogMsg = "check the server logs"
+	port         = 25213
+)
 
 var Version string
 
-func httpInternalServerErrorReadTheLogs(w http.ResponseWriter) {
-	http.Error(w, "check the server logs", http.StatusInternalServerError)
+func httpNotFoundReadTheLogs(w http.ResponseWriter, err error) {
+	log.Error(err)
+	http.Error(w, serverLogMsg, http.StatusNotFound)
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func httpInternalServerErrorReadTheLogs(w http.ResponseWriter, err error) {
+	log.Error(err)
+	http.Error(w, serverLogMsg, http.StatusInternalServerError)
+}
+
+func mavenArtifact(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := r.Body.Close(); err != nil {
 			panic(err)
 		}
 	}()
 
-	method := r.Method
-	reqURL := r.URL
-
-	if err := api.Validation(method, r, w); err != nil {
-		log.Errorf("request is invalid. Error: '%v'", err)
-		httpInternalServerErrorReadTheLogs(w)
+	if err := api.Validation(r.Method, r, w); err != nil {
+		httpInternalServerErrorReadTheLogs(w, err)
 		return
 	}
 
-	if method == "POST" {
-		if err := artifact.Publish(r); err != nil {
-			log.Errorf("publish of an artifact failed. Error: '%v'", err)
-			httpInternalServerErrorReadTheLogs(w)
+	m := artifact.Maven{RequestBody: r.Body, RequestURI: r.RequestURI, ResponseWriter: w}
+	if r.Method == "PUT" {
+		var p artifact.Publisher = m
+		if err := p.Publish(); err != nil {
+			httpInternalServerErrorReadTheLogs(w, err)
 			return
 		}
 		return
 	}
 
-	if err := maven.Cache(w, reqURL); err != nil {
-		log.Errorf("maven artifact caching failed. Error: '%v'", err)
-		httpInternalServerErrorReadTheLogs(w)
+	var ap artifact.Preserver = m
+	if err := ap.Preserve(); err != nil {
+		httpNotFoundReadTheLogs(w, fmt.Errorf("maven artifact caching failed. Error: '%v'", err))
 		return
 	}
 
-	if err := artifact.ReadFromDisk(w, r); err != nil {
-		log.Warnf("cannot read artifact from disk. Error: '%v'. Perhaps it resides in another repository?", err)
-		http.Error(w, "check the server logs", http.StatusNotFound)
+	var ar artifact.Reader = m
+	if err := ar.Read(); err != nil {
+		httpNotFoundReadTheLogs(w, fmt.Errorf("cannot read artifact from disk. Error: '%v'. Perhaps it resides in another repository?", err))
+		return
+	}
+}
+
+func mavenGroup(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
+	if err := api.Validation(r.Method, r, w); err != nil {
+		httpInternalServerErrorReadTheLogs(w, err)
+		return
+	}
+
+	vars := mux.Vars(r)
+	artifactURI := vars["artifact"]
+	groupName := vars["name"]
+	log.Debugf("Group: %v, Artifact: %v", groupName, artifactURI)
+	var p artifact.Unifier = artifact.Maven{ResponseWriter: w, RequestURI: artifactURI}
+	if err := p.Unify(groupName); err != nil {
+		log.Error(fmt.Errorf("grouping failed. Error: '%v'", err))
+		http.Error(w, serverLogMsg, http.StatusInternalServerError)
+		return
+	}
+}
+
+func npmArtifact(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
+	if err := api.Validation(r.Method, r, w); err != nil {
+		httpInternalServerErrorReadTheLogs(w, err)
+		return
+	}
+
+	n := artifact.Maven{RequestBody: r.Body, RequestURI: r.RequestURI, ResponseWriter: w}
+	if r.Method == "POST" {
+		var p artifact.Publisher = n
+		if err := p.Publish(); err != nil {
+			httpInternalServerErrorReadTheLogs(w, err)
+			return
+		}
+		return
+	}
+
+	var ap artifact.Preserver = n
+	if err := ap.Preserve(); err != nil {
+		httpNotFoundReadTheLogs(w, err)
+		return
+	}
+
+	var ar artifact.Reader = n
+	if err := ar.Read(); err != nil {
+		httpNotFoundReadTheLogs(w, err)
+		return
+	}
+}
+
+func status(w http.ResponseWriter, r *http.Request) {
+	if _, err := io.WriteString(w, "ok"); err != nil {
+		httpNotFoundReadTheLogs(w, err)
 		return
 	}
 }
@@ -68,10 +143,23 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	http.HandleFunc("/", handler)
+	r := mux.NewRouter()
+	r.HandleFunc("/maven/groups/{name}/{artifact:.*}", mavenGroup)
+	r.HandleFunc("/maven/{repo}/{artifact:.*}", mavenArtifact)
+	r.HandleFunc("/npm/{repo}/{artifact:.*}", npmArtifact)
+	r.HandleFunc("/status", status)
+
+	srv := &http.Server{
+		Addr: "0.0.0.0:" + strconv.Itoa(port),
+		// Good practice to set timeouts to avoid Slowloris attacks.
+		WriteTimeout: time.Second * 120,
+		ReadTimeout:  time.Second * 180,
+		IdleTimeout:  time.Second * 240,
+		Handler:      r, // Pass our instance of gorilla/mux in.
+	}
 
 	log.Infof("Starting YAAM version: '%s' on localhost on port: '%d'...", Version, port)
-	if err := http.ListenAndServe(":"+strconv.Itoa(port), nil); err != nil {
+	if err := srv.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
 }

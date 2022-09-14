@@ -1,1 +1,10 @@
 cmd/yaam/yaam
+
+test/gradle/demo/.gradle
+test/gradle/demo/build
+test/gradle/demo/build.gradle
+test/gradle/demo/settings.gradle
+
+test/npm/demo/node_modules
+test/npm/demo/.npmrc
+test/npm/demo/package-lock.json
