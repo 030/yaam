@@ -1,27 +1,48 @@
 ---
 name: Go
-on: [push]
+'on': push
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: macos-10.15
-            shasum: shasum -a 512
-          - os: ubuntu-20.04
-            shasum: sha512sum
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.19.0
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
       - name: Unit tests
-        run: go test ./... -cover
-        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+        timeout-minutes: 15
+        run: |
+          go test -short -cover -v -coverprofile=coverage.txt \
+          -covermode=atomic ./...
+      - uses: codecov/codecov-action@v1
+        with:
+          files: ./coverage.txt
+          flags: unittests
+          verbose: true
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        with:
+          args: >
+            -Dsonar.organization=030-github
+            -Dsonar.projectKey=030_yaam
+            -Dsonar.exclusions=internal/goswagger/**,test/gradle/demo/**,test/npm/demo/**
+            -Dsonar.sources=.
+            -Dsonar.coverage.exclusions=**/*_test.go,internal/goswagger/**/*,test/gradle/demo/**,test/npm/demo/**
+            -Dsonar.verbose=true
+            -Dsonar.go.coverage.reportPaths="coverage.txt"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Set YAAM deliverable environment variable
-        run: echo "yaam-deliverable=yaam-${{ matrix.os }}" >> $GITHUB_ENV
+        run: echo "yaam-deliverable=yaam-ubuntu-20.04" >> $GITHUB_ENV
       - name: Use the value
         run: |
           echo "${{ env.yaam-deliverable }}"
@@ -29,13 +50,11 @@ jobs:
         run: ./scripts/build.sh
         env:
           YAAM_DELIVERABLE: ${{ env.yaam-deliverable }}
-          SHA512_CMD: ${{ matrix.shasum }}
+          SHA512_CMD: sha512sum
       - name: Quality
         run: |
           docker run --rm -v ${PWD}:/data markdownlint/markdownlint:0.11.0 \
             README.md -s /data/configs/.markdownlint.rb
-          docker run --rm -v $(pwd):/data cytopia/yamllint:1.26-0.8 .
           docker run --rm -v $(pwd):/app -w /app -e GOFLAGS=-buildvcs=false \
-            golangci/golangci-lint:v1.48.0-alpine golangci-lint run -v \
+            golangci/golangci-lint:v1.49.0-alpine golangci-lint run -v \
             --timeout 2m30s
-        if: ${{ startsWith(matrix.os, 'ubuntu') }}

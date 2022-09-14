@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.3.0] - 2022-09-14
+
+### Added
+
+- integration tests by running gradle commands in a demo project.
+- grouping of Maven repositories.
+- publishing Maven artifacts.
+- NPM and Maven caching.
+
+### Changed
+
+- http to mux.
+
 ## [v0.2.1] - 2022-08-23
 
 ### Added
@@ -45,7 +58,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Cache all Maven2 artifacts that are required by a gradle project locally.
 
-[Unreleased]: https://github.com/030/yaam/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/030/yaam/compare/v0.3.0...HEAD
+[v0.3.0]: https://github.com/030/yaam/compare/v0.2.1...v0.3.0
 [v0.2.1]: https://github.com/030/yaam/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/030/yaam/compare/v0.1.0...v0.2.0
 [v0.1.0]: https://github.com/030/yaam/releases/tag/v0.1.0

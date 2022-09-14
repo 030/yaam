@@ -1,13 +1,39 @@
 ---
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: yaam
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: conf
 data:
-  repositories.yaml: |-
+  caches.yaml: |-
     mavenReposAndUrls:
-      3rdparty-maven: https://repo1.maven.org/maven2/
+      3rdparty-maven: https://repo.maven.apache.org/maven2/
       3rdparty-maven-gradle-plugins: https://plugins.gradle.org/m2/
+      3rdparty-maven-spring: https://repo.spring.io/release/
+      3rdparty-npm: https://registry.npmjs.org/
+  groups.yaml: |-
+    groups:
+      hello:
+        - maven/releases
+        - maven/3rdparty-maven
+        - maven/3rdparty-maven-gradle-plugins
+        - maven/3rdparty-maven-spring
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: conf-repos
+data:
+  maven.yaml: |-
+    allowRepos:
+      - releases
+  npm.yaml: |-
+    allowRepos:
+      - 3rdparty-npm
 ---
 apiVersion: v1
 data:
@@ -44,7 +70,6 @@ spec:
   ports:
     - port: 25213
       name: yaam
-  clusterIP: None
   selector:
     app: yaam
 ---
@@ -53,15 +78,21 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: yaam
 spec:
-  maxReplicas: 10
+  maxReplicas: 20
   metrics:
     - resource:
         name: cpu
         target:
-          averageUtilization: 80
+          averageUtilization: 500
           type: Utilization
       type: Resource
-  minReplicas: 1
+    - resource:
+        name: memory
+        target:
+          averageUtilization: 1500
+          type: Utilization
+      type: Resource
+  minReplicas: 2
   scaleTargetRef:
     apiVersion: apps/v1
     kind: StatefulSet
@@ -87,6 +118,10 @@ spec:
       containers:
         - name: yaam
           env:
+            - name: YAAM_DEBUG
+              value: 'true'
+            - name: YAAM_HOST
+              value: yaam.some-domain
             - name: YAAM_USER
               valueFrom:
                 secretKeyRef:
@@ -97,35 +132,64 @@ spec:
                 secretKeyRef:
                   name: creds
                   key: pass
-          image: utrecht/yaam:v0.2.1
-          readinessProbe:
-            tcpSocket:
-              port: 25213
-            initialDelaySeconds: 3
-            periodSeconds: 2
+          image: utrecht/yaam:v0.3.0
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /status
               port: 25213
-            initialDelaySeconds: 9
-            periodSeconds: 4
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: 25213
           resources:
             limits:
-              memory: 16Mi
-              cpu: 50m
+              cpu: 100m
+              memory: 50Mi
             requests:
-              memory: 1Mi
               cpu: 1m
+              memory: 1Mi
           ports:
             - containerPort: 25213
               name: yaam
           volumeMounts:
             - name: conf
               mountPath: /opt/yaam/.yaam/conf
+            - name: conf-repos
+              mountPath: /opt/yaam/.yaam/conf/repositories
             - name: repositories
               mountPath: /opt/yaam/.yaam/repositories
       volumes:
         - name: conf
           configMap:
             name: conf
+        - name: conf-repos
+          configMap:
+            name: conf-repos
         - name: repositories
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: repositories
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: repositories
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 2Gi
+  hostPath:
+    path: /repositories/
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: repositories
+spec:
+  volumeName: repositories
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
