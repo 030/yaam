@@ -5,19 +5,16 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/030/yaam/internal/api"
 	"github.com/030/yaam/internal/artifact"
+	"github.com/030/yaam/internal/pkg/project"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	serverLogMsg = "check the server logs"
-	port         = 25213
-)
+const serverLogMsg = "check the server logs"
 
 var Version string
 
@@ -90,6 +87,35 @@ func mavenGroup(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func genericArtifact(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
+	if err := api.Validation(r.Method, r, w); err != nil {
+		httpInternalServerErrorReadTheLogs(w, err)
+		return
+	}
+
+	g := artifact.Generic{Request: r, RequestBody: r.Body, RequestURI: r.RequestURI, ResponseWriter: w}
+	if r.Method == "POST" {
+		var p artifact.Publisher = g
+		if err := p.Publish(); err != nil {
+			httpInternalServerErrorReadTheLogs(w, err)
+			return
+		}
+		return
+	}
+
+	var ar artifact.Reader = g
+	if err := ar.Read(); err != nil {
+		httpNotFoundReadTheLogs(w, err)
+		return
+	}
+}
+
 func npmArtifact(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := r.Body.Close(); err != nil {
@@ -126,6 +152,17 @@ func npmArtifact(w http.ResponseWriter, r *http.Request) {
 }
 
 func status(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
+	if err := api.Validation(r.Method, r, w); err != nil {
+		httpInternalServerErrorReadTheLogs(w, err)
+		return
+	}
+
 	if _, err := io.WriteString(w, "ok"); err != nil {
 		httpNotFoundReadTheLogs(w, err)
 		return
@@ -144,13 +181,14 @@ func main() {
 	}
 
 	r := mux.NewRouter()
+	r.HandleFunc("/generic/{repo}/{artifact:.*}", genericArtifact)
 	r.HandleFunc("/maven/groups/{name}/{artifact:.*}", mavenGroup)
 	r.HandleFunc("/maven/{repo}/{artifact:.*}", mavenArtifact)
 	r.HandleFunc("/npm/{repo}/{artifact:.*}", npmArtifact)
 	r.HandleFunc("/status", status)
 
 	srv := &http.Server{
-		Addr: "0.0.0.0:" + strconv.Itoa(port),
+		Addr: "0.0.0.0:" + project.PortString,
 		// Good practice to set timeouts to avoid Slowloris attacks.
 		WriteTimeout: time.Second * 120,
 		ReadTimeout:  time.Second * 180,
@@ -158,7 +196,7 @@ func main() {
 		Handler:      r, // Pass our instance of gorilla/mux in.
 	}
 
-	log.Infof("Starting YAAM version: '%s' on localhost on port: '%d'...", Version, port)
+	log.Infof("Starting YAAM version: '%s' on localhost on port: '%d'...", Version, project.Port)
 	if err := srv.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}

@@ -35,7 +35,7 @@ func replaceUrlPublicNpmWithYaamHost(f, url string) error {
 
 		host := os.Getenv("YAAM_HOST")
 		if host == "" {
-			host = "localhost:25213"
+			host = project.HostAndPort
 		}
 		output := strings.Replace(string(input), "https://registry.npmjs.org", "http://"+host+"/npm/3rdparty-npm", -1)
 
