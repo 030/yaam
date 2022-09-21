@@ -12,6 +12,9 @@
 ### Feat
 - **generic:** [[#17](https://github.com/030/yaam/issues/17)] Uploading and downloading of generic artifacts.
 
+### Fix
+- Update docker tag to 0.4.0 in documentation.
+
 
 <a name="v0.3.0"></a>
 ## [v0.3.0] - 2022-09-14
