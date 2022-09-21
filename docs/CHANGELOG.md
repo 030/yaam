@@ -5,6 +5,7 @@
 <a name="v0.4.0"></a>
 ## [v0.4.0] - 2022-09-21
 ### Docs
+- [[#21](https://github.com/030/yaam/issues/21)] Add rationale for creating YAAM.
 - [[#21](https://github.com/030/yaam/issues/21)] Create CHANGELOG according conventional-commits and generating it using git-chglog.
 
 ### Feat

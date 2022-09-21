@@ -42,12 +42,19 @@
 [GoDoc]: https://godoc.org/github.com/030/yaam
 [GoDoc Widget]: https://godoc.org/github.com/030/yaam?status.svg
 
-Yet Another Artifact Manager (YAAM):
+Although there are many artifact managers, like Artifactory, Nexus3 and
+Verdaccio, they are either monoliths, consume a lot of resources
+(memory and CPU), lack Infrastructure as Code (IaC) or do not support all kind
+of artifact types. Yet Another Artifact Manager (YAAM):
 
-* an artifact manager like Artifactory or Nexus3.
-* without UI.
-* lower CPU and Memory usage.
-* supports Maven artifact publication and 3rdparty repository caching.
+* is an artifact manager like Artifactory, Nexus3 or Verdaccio.
+* enforces IaC.
+* has no UI.
+* does not have a database.
+* scales horizontally.
+* supports downloading and publication of Generic, Maven and NPM artefacts,
+  preserves NPM and Maven packages from public repositories and unifies Maven
+  repositories.
 
 ## Usage
 
