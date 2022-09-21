@@ -322,54 +322,27 @@ func testGenericArtifactHelper() error {
 	return nil
 }
 
-func testGenericArtifactReqHelper(method, uri string, body io.Reader) (*http.Request, error) {
+func testGenericArtifactReqHelper(method, uri string, body io.Reader) (*http.Response, error) {
 	req, err := http.NewRequest(method, project.Url+uri, body)
 	if err != nil {
-		return req, err
+		return nil, err
 	}
 	req.SetBasicAuth("hello", "world")
-	return req, nil
-}
 
-func TestGenericArtifact(t *testing.T) {
-	if err := testGenericArtifactHelper(); err != nil {
-		t.Error(err)
-	}
-
-	uri := "/generic/something/some.iso"
-	b, err := os.ReadFile(testDirIso)
-	if err != nil {
-		t.Error(err)
-	}
-	r := bytes.NewReader(b)
 	client := &http.Client{
 		Timeout: time.Second * 120,
 	}
-
-	req, err := testGenericArtifactReqHelper("POST", uri, r)
-	if err != nil {
-		t.Error(err)
-	}
-	_, err = client.Do(req)
-	if err != nil {
-		t.Error(err)
-	}
-	assert.NoError(t, err)
-
-	//
-	//
-	//
-	req, err = testGenericArtifactReqHelper("GET", uri, nil)
-	if err != nil {
-		t.Error(err)
-	}
 	resp, err := client.Do(req)
 	if err != nil {
-		t.Error(err)
+		return nil, err
 	}
+	return resp, nil
+}
+
+func testGenericArtifactWriteOnDiskHelper(resp *http.Response) (int64, error) {
 	f, err := os.Create(testDirIsoDownloaded)
 	if err != nil {
-		t.Error(err)
+		return 0, err
 	}
 	defer func() {
 		if err := f.Close(); err != nil {
@@ -378,26 +351,47 @@ func TestGenericArtifact(t *testing.T) {
 	}()
 	w, err := io.Copy(f, resp.Body)
 	if err != nil {
-		t.Error(err)
+		return 0, err
 	}
 	if err := f.Sync(); err != nil {
+		return 0, err
+	}
+	return w, err
+}
+
+func TestGenericArtifact(t *testing.T) {
+	// Upload
+	if err := testGenericArtifactHelper(); err != nil {
 		t.Error(err)
 	}
+	uri := "/generic/something/some.iso"
+	b, err := os.ReadFile(testDirIso)
+	if err != nil {
+		t.Error(err)
+	}
+	r := bytes.NewReader(b)
+	_, err = testGenericArtifactReqHelper("POST", uri, r)
+	if err != nil {
+		t.Error(err)
+	}
+	assert.NoError(t, err)
 
+	// Download
+	resp, err := testGenericArtifactReqHelper("GET", uri, nil)
+	if err != nil {
+		t.Error(err)
+	}
+	w, err := testGenericArtifactWriteOnDiskHelper(resp)
+	if err != nil {
+		t.Error(err)
+	}
 	assert.Equal(t, "written: 3826831360", fmt.Sprintf("written: %d", w))
 }
 
 func TestGenericArtifactFail(t *testing.T) {
+	// Upload
 	uri := "/generic/something2/some.iso"
-
-	client := &http.Client{
-		Timeout: time.Second * 120,
-	}
-	req, err := testGenericArtifactReqHelper("POST", uri, nil)
-	if err != nil {
-		t.Error(err)
-	}
-	resp, err := client.Do(req)
+	resp, err := testGenericArtifactReqHelper("POST", uri, nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -406,19 +400,12 @@ func TestGenericArtifactFail(t *testing.T) {
 		t.Error(err)
 	}
 	bodyString := string(b)
-
 	assert.Equal(t, "check the server logs\n", bodyString)
 	assert.Equal(t, 500, resp.StatusCode)
 	assert.NoError(t, err)
 
-	//
-	//
-	//
-	req, err = testGenericArtifactReqHelper("GET", uri, nil)
-	if err != nil {
-		t.Error(err)
-	}
-	resp, err = client.Do(req)
+	// Download
+	resp, err = testGenericArtifactReqHelper("GET", uri, nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -433,16 +420,6 @@ func TestStatus(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, "ok", b)
-}
-
-func TestStatusFail(t *testing.T) {
-	b, err := testStatusHelper("GET", "incorrect-pass", "/status", nil, 10)
-	if err != nil {
-		t.Error(err)
-	}
-
-	assert.NoError(t, err)
-	assert.Equal(t, "check the server logs\n", b)
 }
 
 func TestMainNpmBuild(t *testing.T) {

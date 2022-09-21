@@ -7,6 +7,7 @@
 ### Docs
 - [[#21](https://github.com/030/yaam/issues/21)] Add rationale for creating YAAM.
 - [[#21](https://github.com/030/yaam/issues/21)] Create CHANGELOG according conventional-commits and generating it using git-chglog.
+- **generic:** [[#21](https://github.com/030/yaam/issues/21)] Describe config, upload and download.
 
 ### Feat
 - **generic:** [[#17](https://github.com/030/yaam/issues/17)] Uploading and downloading of generic artifacts.

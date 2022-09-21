@@ -158,11 +158,6 @@ func status(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	if err := api.Validation(r.Method, r, w); err != nil {
-		httpInternalServerErrorReadTheLogs(w, err)
-		return
-	}
-
 	if _, err := io.WriteString(w, "ok"); err != nil {
 		httpNotFoundReadTheLogs(w, err)
 		return

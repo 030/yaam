@@ -1,17 +1,5 @@
 # K8s and OpenShift
 
-## K8s
-
-```bash
-kubectl create ns yaam
-```
-
-## OpenShift
-
-```bash
-oc new-project yaam
-```
-
 ## Deploy
 
 ```bash
