@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -9,20 +13,19 @@ import (
 	"testing"
 	"time"
 
+	"github.com/030/yaam/internal/pkg/project"
 	"github.com/tj/assert"
 )
 
 const (
+	allowedReposGeneric = `allowedRepos:
+  - something`
 	allowedReposMaven = `allowedRepos:
   - releases`
 	allowedReposNpm = `allowedRepos:
   - 3rdparty-npm`
 	gradleHomeDemoProject = "../../test/gradle/demo"
 	npmHomeDemoProject    = "../../test/npm/demo"
-
-	npmrc = `registry=http://localhost:25213/npm/3rdparty-npm/
-always-auth=true
-_auth=aGVsbG86d29ybGQ=`
 
 	caches = `mavenReposAndUrls:
   3rdparty-maven: https://repo.maven.apache.org/maven2/
@@ -35,12 +38,20 @@ _auth=aGVsbG86d29ybGQ=`
     - maven/3rdparty-maven
     - maven/3rdparty-maven-gradle-plugins
     - maven/3rdparty-maven-spring`
-	cmdExitErrMsg     = "%v, err: '%v'"
-	mavenReleasesRepo = "maven/releases"
+	cmdExitErrMsg        = "%v, err: '%v'"
+	mavenReleasesRepo    = "maven/releases"
+	testDir              = "/tmp/yaam"
+	testDirGradle        = testDir + "/gradle"
+	testDirNpm           = testDir + "/npm"
+	testDirIso           = testDir + "/ubuntu.iso"
+	testDirIsoDownloaded = testDir + "/downloaded-ubuntu.iso"
 )
 
 var (
 	mavenRepos = []string{"maven/3rdparty-maven", "maven/3rdparty-maven-gradle-plugins", "maven/3rdparty-maven-spring", mavenReleasesRepo}
+	npmrc      = `registry=` + project.Url + `/npm/3rdparty-npm/
+	always-auth=true
+	_auth=aGVsbG86d29ybGQ=`
 )
 
 func testConfigHelper() error {
@@ -56,6 +67,9 @@ func testConfigHelper() error {
 	if err := os.WriteFile(filepath.Join(dir, "groups.yaml"), []byte(groups), 0600); err != nil {
 		return err
 	}
+	if err := os.WriteFile(filepath.Join(reposDir, "generic.yaml"), []byte(allowedReposGeneric), 0600); err != nil {
+		return err
+	}
 	if err := os.WriteFile(filepath.Join(reposDir, "maven.yaml"), []byte(allowedReposMaven), 0600); err != nil {
 		return err
 	}
@@ -65,6 +79,7 @@ func testConfigHelper() error {
 
 	os.Setenv("YAAM_DEBUG", "true")
 	os.Setenv("YAAM_USER", "hello")
+	os.Setenv("YAAM_PASS", "world")
 
 	return nil
 }
@@ -83,7 +98,7 @@ func testNpmConfigHelper() (int, error) {
 	}
 
 	npmrcWithCacheLocation := npmrc + `
-cache=/tmp/yaam/test/npm/cache` + time.Now().Format("20060102150405111") + ``
+cache=` + testDirNpm + `/cache` + time.Now().Format("20060102150405111") + ``
 	if err := os.WriteFile(filepath.Join(npmHomeDemoProject, ".npmrc"), []byte(npmrcWithCacheLocation), 0600); err != nil {
 		return 1, err
 	}
@@ -116,7 +131,7 @@ func testMainGradleFile(content []byte, name string) error {
 func testMainGradleCleanBuildHelper(pass string) (int, error) {
 	os.Setenv("YAAM_PASS", pass)
 
-	os.Setenv("GRADLE_USER_HOME", "/tmp/yaam/test/gradle"+time.Now().Format("20060102150405111"))
+	os.Setenv("GRADLE_USER_HOME", testDirGradle+time.Now().Format("20060102150405111"))
 	cmd := exec.Command("bash", "-c", "./gradlew clean build --no-daemon")
 	cmd.Dir = gradleHomeDemoProject
 	co, err := cmd.CombinedOutput()
@@ -156,7 +171,7 @@ func testGradleMavenRepositoriesFileHelper(repos []string) string {
 		content := `
 		maven {
 			allowInsecureProtocol true
-			url 'http://localhost:25213/` + repo + `/'
+			url '` + project.Url + `/` + repo + `/'
 			authentication {
 				basic(BasicAuthentication)
 			}
@@ -247,6 +262,166 @@ rootProject.name = 'demo'
 	return nil
 }
 
+func testStatusHelper(method, pass, uri string, body io.Reader, timeout time.Duration) (string, error) {
+	client := &http.Client{
+		Timeout: time.Second * timeout,
+	}
+	req, err := http.NewRequest(method, project.Url+uri, body)
+	if err != nil {
+		return "", err
+	}
+	req.SetBasicAuth("hello", pass)
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	return string(b), nil
+}
+
+func testGenericArtifactHelper() error {
+	if _, err := os.Stat(testDirIso); errors.Is(err, os.ErrNotExist) {
+		resp, err := http.Get("https://releases.ubuntu.com/22.04.1/ubuntu-22.04.1-desktop-amd64.iso")
+		if err != nil {
+			return err
+		}
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				panic(err)
+			}
+		}()
+
+		f, err := os.Create(testDirIso)
+		if err != nil {
+			return err
+		}
+		defer func() {
+			if err := f.Close(); err != nil {
+				panic(err)
+			}
+		}()
+		_, err = io.Copy(f, resp.Body)
+		if err != nil {
+			return err
+		}
+		if err := f.Sync(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func testGenericArtifactReqHelper(method, uri string, body io.Reader) (*http.Response, error) {
+	req, err := http.NewRequest(method, project.Url+uri, body)
+	if err != nil {
+		return nil, err
+	}
+	req.SetBasicAuth("hello", "world")
+
+	client := &http.Client{
+		Timeout: time.Second * 120,
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func testGenericArtifactWriteOnDiskHelper(resp *http.Response) (int64, error) {
+	f, err := os.Create(testDirIsoDownloaded)
+	if err != nil {
+		return 0, err
+	}
+	defer func() {
+		if err := f.Close(); err != nil {
+			panic(err)
+		}
+	}()
+	w, err := io.Copy(f, resp.Body)
+	if err != nil {
+		return 0, err
+	}
+	if err := f.Sync(); err != nil {
+		return 0, err
+	}
+	return w, err
+}
+
+func TestGenericArtifact(t *testing.T) {
+	// Upload
+	if err := testGenericArtifactHelper(); err != nil {
+		t.Error(err)
+	}
+	uri := "/generic/something/some.iso"
+	b, err := os.ReadFile(testDirIso)
+	if err != nil {
+		t.Error(err)
+	}
+	r := bytes.NewReader(b)
+	_, err = testGenericArtifactReqHelper("POST", uri, r)
+	if err != nil {
+		t.Error(err)
+	}
+	assert.NoError(t, err)
+
+	// Download
+	resp, err := testGenericArtifactReqHelper("GET", uri, nil)
+	if err != nil {
+		t.Error(err)
+	}
+	w, err := testGenericArtifactWriteOnDiskHelper(resp)
+	if err != nil {
+		t.Error(err)
+	}
+	assert.Equal(t, "written: 3826831360", fmt.Sprintf("written: %d", w))
+}
+
+func TestGenericArtifactFail(t *testing.T) {
+	// Upload
+	uri := "/generic/something2/some.iso"
+	resp, err := testGenericArtifactReqHelper("POST", uri, nil)
+	if err != nil {
+		t.Error(err)
+	}
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Error(err)
+	}
+	bodyString := string(b)
+	assert.Equal(t, "check the server logs\n", bodyString)
+	assert.Equal(t, 500, resp.StatusCode)
+	assert.NoError(t, err)
+
+	// Download
+	resp, err = testGenericArtifactReqHelper("GET", uri, nil)
+	if err != nil {
+		t.Error(err)
+	}
+	assert.Equal(t, 404, resp.StatusCode)
+}
+
+func TestStatus(t *testing.T) {
+	b, err := testStatusHelper("GET", "world", "/status", nil, 10)
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, "ok", b)
+}
+
 func TestMainNpmBuild(t *testing.T) {
 	exitCode, err := testNpmConfigHelper()
 	if err != nil {
@@ -318,7 +493,7 @@ func TestMainGradlePublish(t *testing.T) {
 func TestMainGradlePublishFail(t *testing.T) {
 	exitCode, err := testMainGradlePublishHelper("maven/releases-non-existent")
 
-	assert.Regexp(t, `Could not PUT 'http://localhost:25213/maven/releases-non-existent/com/example/demo/0.0.1-SNAPSHOT/maven-metadata.xml'. Received status code 500 from server: Internal Server Error`, err)
+	assert.Regexp(t, `Could not PUT '`+project.Url+`/maven/releases-non-existent/com/example/demo/0.0.1-SNAPSHOT/maven-metadata.xml'. Received status code 500 from server: Internal Server Error`, err)
 	assert.Equal(t, 1, exitCode)
 }
 
@@ -348,6 +523,6 @@ func TestMainGradleCleanBuildGroupFail(t *testing.T) {
 
 	exitCode, err := testMainGradleCleanBuildHelper("world")
 
-	assert.Regexp(t, `Could not GET 'http://localhost:25213/maven/groups/helloworld/.*'. Received status code 500 from server: Internal Server Error`, err)
+	assert.Regexp(t, `Could not GET '`+project.Url+`/maven/groups/helloworld/.*'. Received status code 500 from server: Internal Server Error`, err)
 	assert.Equal(t, 1, exitCode)
 }

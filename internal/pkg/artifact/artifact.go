@@ -73,13 +73,23 @@ func StoreOnDisk(requestURI string, requestBody io.ReadCloser) error {
 	return nil
 }
 
+func FilepathOnDisk(url string) (string, error) {
+	h, err := project.RepositoriesHome()
+	if err != nil {
+		return "", err
+	}
+
+	f := filepath.Join(h, url)
+	log.Debugf("constructed filepath: '%s' after concatenating home: '%s' to url: '%s'", f, h, url)
+	return f, nil
+}
+
 func ReadFromDisk(w http.ResponseWriter, reqURL string) error {
-	prh, err := project.RepositoriesHome()
+	f, err := FilepathOnDisk(reqURL)
 	if err != nil {
 		return err
 	}
 
-	f := filepath.Join(prh, reqURL)
 	log.Debugf("reading file: '%s' from disk...", f)
 	b, err := os.ReadFile(filepath.Clean(f))
 	if err != nil {

@@ -28,11 +28,14 @@ kind: ConfigMap
 metadata:
   name: conf-repos
 data:
+  generic.yaml: |-
+    allowedRepos:
+      - something
   maven.yaml: |-
-    allowRepos:
+    allowedRepos:
       - releases
   npm.yaml: |-
-    allowRepos:
+    allowedRepos:
       - 3rdparty-npm
 ---
 apiVersion: v1
@@ -78,18 +81,21 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: yaam
 spec:
-  maxReplicas: 20
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 30
+  maxReplicas: 10
   metrics:
     - resource:
         name: cpu
         target:
-          averageUtilization: 500
+          averageUtilization: 90
           type: Utilization
       type: Resource
     - resource:
         name: memory
         target:
-          averageUtilization: 1500
+          averageUtilization: 80
           type: Utilization
       type: Resource
   minReplicas: 2
@@ -132,7 +138,7 @@ spec:
                 secretKeyRef:
                   name: creds
                   key: pass
-          image: utrecht/yaam:v0.3.0
+          image: utrecht/yaam:v0.4.0
           livenessProbe:
             httpGet:
               path: /status
@@ -143,11 +149,11 @@ spec:
               port: 25213
           resources:
             limits:
-              cpu: 100m
-              memory: 50Mi
+              cpu: 240m
+              memory: 24Mi
             requests:
-              cpu: 1m
-              memory: 1Mi
+              cpu: 2m
+              memory: 8Mi
           ports:
             - containerPort: 25213
               name: yaam

@@ -3,12 +3,24 @@ package project
 import (
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 )
 
-const hiddenFolderName = ".yaam"
+const (
+	hiddenFolderName = ".yaam"
+	Port             = 25213
+	Host             = "localhost"
+	Scheme           = "http"
+)
+
+var (
+	PortString  = strconv.Itoa(Port)
+	HostAndPort = Host + ":" + PortString
+	Url         = Scheme + "://" + HostAndPort
+)
 
 func Home() (string, error) {
 	h, err := homedir.Dir()

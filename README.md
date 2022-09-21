@@ -8,6 +8,7 @@
 [![DevOps SE Questions](https://img.shields.io/stackexchange/devops/t/yaam.svg?logo=stackexchange)](https://devops.stackexchange.com/tags/yaam)
 [![ServerFault SE Questions](https://img.shields.io/stackexchange/serverfault/t/yaam.svg?logo=serverfault)](https://serverfault.com/tags/yaam)
 ![Docker Pulls](https://img.shields.io/docker/pulls/utrecht/yaam.svg)
+[![yaam on stackoverflow](https://img.shields.io/badge/stackoverflow-community-orange.svg?longCache=true&logo=stackoverflow)](https://stackoverflow.com/tags/yaam)
 ![Issues](https://img.shields.io/github/issues-raw/030/yaam.svg)
 ![Pull requests](https://img.shields.io/github/issues-pr-raw/030/yaam.svg)
 ![Total downloads](https://img.shields.io/github/downloads/030/yaam/total.svg)
@@ -35,16 +36,25 @@
 [![BCH compliance](https://bettercodehub.com/edge/badge/030/yaam?branch=main)](https://bettercodehub.com/results/030/yaam)
 [![GolangCI](https://golangci.com/badges/github.com/golangci/golangci-web.svg)](https://golangci.com/r/github.com/030/yaam)
 [![codebeat badge](https://codebeat.co/badges/af6b1a01-df2c-40e7-bfb1-13ec0bb90087)](https://codebeat.co/projects/github-com-030-yaam-main)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
 [GoDoc]: https://godoc.org/github.com/030/yaam
 [GoDoc Widget]: https://godoc.org/github.com/030/yaam?status.svg
 
-Yet Another Artifact Manager (YAAM):
+Although there are many artifact managers, like Artifactory, Nexus3 and
+Verdaccio, they are either monoliths, consume a lot of resources
+(memory and CPU), lack Infrastructure as Code (IaC) or do not support all kind
+of artifact types. Yet Another Artifact Manager (YAAM):
 
-* an artifact manager like Artifactory or Nexus3.
-* without UI.
-* lower CPU and Memory usage.
-* supports Maven artifact publication and 3rdparty repository caching.
+* is an artifact manager like Artifactory, Nexus3 or Verdaccio.
+* enforces IaC.
+* has no UI.
+* does not have a database.
+* scales horizontally.
+* supports downloading and publication of Generic, Maven and NPM artefacts,
+  preserves NPM and Maven packages from public repositories and unifies Maven
+  repositories.
 
 ## Usage
 
