@@ -1,7 +1,7 @@
 # YAAM
 
 [![CI](https://github.com/030/yaam/workflows/Go/badge.svg?event=push)](https://github.com/030/yaam/actions?query=workflow%3AGo)
-[![GoDoc Widget]][GoDoc]
+[![GoDoc Widget]][godoc]
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/030/yaam)
 [![Go Report Card](https://goreportcard.com/badge/github.com/030/yaam)](https://goreportcard.com/report/github.com/030/yaam)
 [![StackOverflow SE Questions](https://img.shields.io/stackexchange/stackoverflow/t/yaam.svg?logo=stackoverflow)](https://stackoverflow.com/tags/yaam)
@@ -39,29 +39,57 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
-[GoDoc]: https://godoc.org/github.com/030/yaam
-[GoDoc Widget]: https://godoc.org/github.com/030/yaam?status.svg
+[godoc]: https://godoc.org/github.com/030/yaam
+[godoc widget]: https://godoc.org/github.com/030/yaam?status.svg
 
 Although there are many artifact managers, like Artifactory, Nexus3 and
 Verdaccio, they are either monoliths, consume a lot of resources
 (memory and CPU), lack Infrastructure as Code (IaC) or do not support all kind
 of artifact types. Yet Another Artifact Manager (YAAM):
 
-* is an artifact manager like Artifactory, Nexus3 or Verdaccio.
-* enforces IaC.
-* has no UI.
-* does not have a database.
-* scales horizontally.
-* supports downloading and publication of Generic, Maven and NPM artefacts,
+- is an artifact manager like Artifactory, Nexus3 or Verdaccio.
+- enforces IaC.
+- has no UI.
+- does not have a database.
+- scales horizontally.
+- supports downloading and publication of Generic, Maven and NPM artefacts,
   preserves NPM and Maven packages from public repositories and unifies Maven
   repositories.
 
-## Usage
+## Configuration
 
-* [Binary.](docs/usage/BINARY.md)
-* [Docker.](docs/usage/DOCKER.md)
-* [K8s/OpenShift.](docs/usage/K8SOPENSHIFT.md)
+### General
+
+- [Base.](docs/config/BASE.md)
+
+### Artifact types
+
+- [Generic.](docs/config/GENERIC.md)
+- [Maven.](docs/config/MAVEN.md)
+- [NPM.](docs/config/NPM.md)
+
+## Start
+
+- [Binary.](docs/start/BINARY.md)
+- [Docker.](docs/start/DOCKER.md)
+- [K8s/OpenShift.](docs/start/K8SOPENSHIFT.md)
+
+## Capabilities
+
+### Publish
+
+- [Generic.](docs/publish/GENERIC.md)
+- [Maven.](docs/publish/MAVEN.md)
+
+### Preserve
+
+- [Maven.](docs/preserve/MAVEN.md)
+- [NPM.](docs/preserve/NPM.md)
+
+### Unify
+
+- [Maven.](docs/unify/MAVEN.md)
 
 ## Other
 
-* [Background.](docs/other/BACKGROUND.md)
+- [Background.](docs/other/BACKGROUND.md)

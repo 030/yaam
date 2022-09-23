@@ -1,6 +1,6 @@
-# Gradle
+# Maven
 
-## Cache artifacts
+## Gradle
 
 ```bash
 ./gradlew clean build
