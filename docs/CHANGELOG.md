@@ -2,6 +2,15 @@
 ## [Unreleased]
 
 
+<a name="v0.4.1"></a>
+## [v0.4.1] - 2022-09-23
+### Docs
+- [[#21](https://github.com/030/yaam/issues/21)] Describe how to configure and start YAAM.
+
+### Fix
+- Updated outdated CHANGELOG.
+
+
 <a name="v0.4.0"></a>
 ## [v0.4.0] - 2022-09-21
 ### Docs
@@ -28,7 +37,8 @@
 <a name="v0.2.1"></a>
 ## v0.2.1 - 2022-08-23
 
-[Unreleased]: https://github.com/030/yaam/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/030/yaam/compare/v0.4.1...HEAD
+[v0.4.1]: https://github.com/030/yaam/compare/v0.4.0...v0.4.1
 [v0.4.0]: https://github.com/030/yaam/compare/v0.3.0...v0.4.0
 [v0.3.0]: https://github.com/030/yaam/compare/v0.2.0...v0.3.0
 [v0.2.0]: https://github.com/030/yaam/compare/v0.1.0...v0.2.0

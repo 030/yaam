@@ -24,7 +24,7 @@ jobs:
           version=$(echo "${{ github.ref }}" | sed -e "s|.*\/\(.*\)$|\1|")
           echo "Version: ${version}"
           echo "Checking README.md..."
-          grep "yaam:${version}" docs/usage/DOCKER.md
+          grep "yaam:${version}" docs/start/DOCKER.md
           echo "Checking k8s-openshift deployment..."
           grep "yaam:${version}" deployments/k8s-openshift/deploy.yml
       - name: Create release
