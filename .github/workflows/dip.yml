@@ -2,7 +2,7 @@
 name: DIP
 'on':
   schedule:
-    - cron: '55 15 * * 4'
+    - cron: '5 17 * * 4'
 jobs:
   dive:
     runs-on: ubuntu-latest
@@ -29,7 +29,7 @@ jobs:
         run: |
           GOLANGCI_LINT_VERSION=$(./dip image --name=golangci/golangci-lint --regex=^v1\.[0-9]+\.[0-9]+-alpine$)
           echo "Check whether the latest GolangCI version: '${GOLANGCI_LINT_VERSION}' is used..."
-          sed -i "s|\(golangci-lint:\).*|\1${GOLANGCI_LINT_VERSION}|" ./.github/workflows/go.yml
+          sed -i "s|\(golangci-lint:\).*|\1${GOLANGCI_LINT_VERSION} golangci-lint run -v|" ./.github/workflows/go.yml
       - name: Check Yamllint
         run: |
           YAMLLINT_VERSION=$(./dip image --name=pipelinecomponents/yamllint --regex=0\..*)
