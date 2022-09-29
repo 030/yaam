@@ -7,7 +7,7 @@ jobs:
     name: Check whether images are up-to-date
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       # yamllint disable rule:line-length
       - name: Download DIP
         run: curl -L https://github.com/030/dip/releases/download/4.1.0/dip-ubuntu-20.04 -o dip && chmod +x dip
@@ -24,4 +24,12 @@ jobs:
         run: |
           YAMLLINT_VERSION=$(./dip image --name=pipelinecomponents/yamllint --regex=0\..*)
           echo "Check whether the latest yamllint version: '${YAMLLINT_VERSION}' is used..."
-          grep "pipelinecomponents/yamllint:${YAMLLINT_VERSION}" ./.github/workflows/yamllint.yml
+          # grep "pipelinecomponents/yamllint:${YAMLLINT_VERSION}" ./.github/workflows/yamllint.yml
+          sed -e "s|\(pipelinecomponents/yamllint:\).*|\1${YAMLLINT_VERSION}|" ./.github/workflows/yamllint.yml
+      #
+      #
+      #
+      - name: Uncommitted change
+        run: date +%s > report.txt
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
