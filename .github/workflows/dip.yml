@@ -2,7 +2,7 @@
 name: DIP
 'on':
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '55 15 * * 4'
 jobs:
   dive:
     runs-on: ubuntu-latest
@@ -15,9 +15,14 @@ jobs:
         run: curl -L https://github.com/030/dip/releases/download/4.1.0/dip-ubuntu-20.04 -o dip && chmod +x dip
       - name: Check Alpine
         run: ./dip image --name=alpine --regex=^3\.[0-9]+\.[0-9]+$ --updateDockerfile
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19.0
       - name: Check Golang
         run: |
           ./dip image --name=golang --regex=^1\.[0-9]+\.[0-9]+-alpine3\.[0-9]+$ --updateDockerfile
+          echo "Updating golang dependencies..."
           go get -u ./...
           go mod tidy
       - name: Check golangci-lint
