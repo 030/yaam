@@ -1,27 +1,41 @@
 ---
 name: DIP
-'on': push
+on:
+  schedule:
+    - cron: '15 13 * * 4'
 jobs:
   dive:
     runs-on: ubuntu-latest
     name: Check whether images are up-to-date
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       # yamllint disable rule:line-length
       - name: Download DIP
         run: curl -L https://github.com/030/dip/releases/download/4.1.0/dip-ubuntu-20.04 -o dip && chmod +x dip
       - name: Check Alpine
-        run: ./dip image --name=alpine --regex=^3\.[0-9]+\.[0-9]+$ --dockerfile
+        run: ./dip image --name=alpine --regex=^3\.[0-9]+\.[0-9]+$ --updateDockerfile
       - name: Check Golang
-        run: ./dip image --name=golang --regex=^1\.[0-9]+\.[0-9]+-alpine3\.[0-9]+$ --dockerfile
+        run: |
+          ./dip image --name=golang --regex=^1\.[0-9]+\.[0-9]+-alpine3\.[0-9]+$ --updateDockerfile
+          go get -u ./...
+          go mod tidy
       - name: Check golangci-lint
         run: |
           GOLANGCI_LINT_VERSION=$(./dip image --name=golangci/golangci-lint --regex=^v1\.[0-9]+\.[0-9]+-alpine$)
           echo "Check whether the latest GolangCI version: '${GOLANGCI_LINT_VERSION}' is used..."
-          grep "golangci-lint:${GOLANGCI_LINT_VERSION}" ./.github/workflows/go.yml
+          sed -i "s|\(golangci-lint:\).*|\1${GOLANGCI_LINT_VERSION}|" ./.github/workflows/go.yml
       - name: Check Yamllint
         run: |
           YAMLLINT_VERSION=$(./dip image --name=pipelinecomponents/yamllint --regex=0\..*)
           echo "Check whether the latest yamllint version: '${YAMLLINT_VERSION}' is used..."
-          grep "pipelinecomponents/yamllint:${YAMLLINT_VERSION}" ./.github/workflows/yamllint.yml
+          sed -i "s|\(pipelinecomponents/yamllint:\).*|\1${YAMLLINT_VERSION}|" ./.github/workflows/yamllint.yml
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          assignees: '030'
+          base: main
+          commit-message: 'build(deps): Update versions.'
+          committer: 030 <chocolatey030@gmail.com>
+          delete-branch: true
+          token: ${{ secrets.PAT }}
