@@ -1,8 +1,8 @@
 ---
 name: DIP
-on:
+'on':
   schedule:
-    - cron: '15 13 * * 4'
+    - cron: '*/5 * * * *'
 jobs:
   dive:
     runs-on: ubuntu-latest
