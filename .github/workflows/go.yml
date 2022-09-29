@@ -4,6 +4,7 @@ name: Go
 jobs:
   build:
     runs-on: ubuntu-20.04
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v2
       - name: Set up Go
@@ -18,7 +19,6 @@ jobs:
         with:
           node-version: 14
       - name: Unit tests
-        timeout-minutes: 15
         run: |
           go test -short -cover -v -coverprofile=coverage.txt \
           -covermode=atomic ./...
