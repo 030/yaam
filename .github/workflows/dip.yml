@@ -47,9 +47,13 @@ jobs:
       #     reviewers: '030'
       #     title: 'Update dependencies.'
       #     token: ${{ secrets.PAT }}
-      - name: pull-request
-        id: open-pr
-        uses: repo-sync/pull-request@v2
+      - uses: EndBug/add-and-commit@v9
         with:
-          destination_branch: 'main'
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          author_name: github-actions[bot]
+          author_email: 41898282+github-actions[bot]@users.noreply.github.com
+          new_branch: custom-new-branch
+      - name: create pull request
+        run: |
+          gh pr create --assignee 030 --base main --head custom-new-branch --title 'Merge branch_to_merge into base_branch' --body 'Created by Github action' --reviewer 030
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
