@@ -2,7 +2,7 @@
 name: DIP
 'on':
   schedule:
-    - cron: '33 9 * * 5'
+    - cron: '28 11 * * 5'
 jobs:
   dive:
     runs-on: ubuntu-latest
@@ -39,7 +39,7 @@ jobs:
         uses: peter-evans/create-pull-request@v4
         with:
           assignees: '030'
-          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           base: main
           commit-message: 'build(deps): Update versions.'
           committer: GitHub <noreply@github.com>
