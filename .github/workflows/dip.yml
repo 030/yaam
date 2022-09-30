@@ -2,7 +2,7 @@
 name: DIP
 'on':
   schedule:
-    - cron: '28 11 * * 5'
+    - cron: '5 13 * * 5'
 jobs:
   dive:
     runs-on: ubuntu-latest
@@ -44,5 +44,6 @@ jobs:
           commit-message: 'build(deps): Update versions.'
           committer: GitHub <noreply@github.com>
           delete-branch: true
+          reviewers: '030'
           title: 'Update dependencies.'
           token: ${{ secrets.PAT }}
