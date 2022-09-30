@@ -1,8 +1,8 @@
 ---
 name: DIP
-'on':
-  schedule:
-    - cron: '10 14 * * 5'
+'on': push
+# schedule:
+#   - cron: '10 14 * * 5'
 jobs:
   dive:
     runs-on: ubuntu-latest
@@ -35,15 +35,21 @@ jobs:
           YAMLLINT_VERSION=$(./dip image --name=pipelinecomponents/yamllint --regex=0\..*)
           echo "Check whether the latest yamllint version: '${YAMLLINT_VERSION}' is used..."
           sed -i "s|\(pipelinecomponents/yamllint:\).*|\1${YAMLLINT_VERSION}|" ./.github/workflows/yamllint.yml
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
+      # - name: Create Pull Request
+      #   uses: peter-evans/create-pull-request@v4
+      #   with:
+      #     assignees: '030'
+      #     author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+      #     base: main
+      #     commit-message: 'build(deps): Update versions.'
+      #     committer: GitHub <noreply@github.com>
+      #     delete-branch: true
+      #     reviewers: '030'
+      #     title: 'Update dependencies.'
+      #     token: ${{ secrets.PAT }}
+      - name: pull-request
+        id: open-pr
+        uses: repo-sync/pull-request@v2
         with:
-          assignees: '030'
-          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-          base: main
-          commit-message: 'build(deps): Update versions.'
-          committer: GitHub <noreply@github.com>
-          delete-branch: true
-          reviewers: '030'
-          title: 'Update dependencies.'
-          token: ${{ secrets.PAT }}
+          destination_branch: 'main'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
