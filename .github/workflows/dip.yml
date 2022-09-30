@@ -1,27 +1,50 @@
 ---
 name: DIP
-'on': push
+'on':
+  schedule:
+    - cron: '0 19 * * 5'
 jobs:
   dive:
     runs-on: ubuntu-latest
     name: Check whether images are up-to-date
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.WORKFLOW_TOKEN }}
       # yamllint disable rule:line-length
       - name: Download DIP
         run: curl -L https://github.com/030/dip/releases/download/4.1.0/dip-ubuntu-20.04 -o dip && chmod +x dip
       - name: Check Alpine
-        run: ./dip image --name=alpine --regex=^3\.[0-9]+\.[0-9]+$ --dockerfile
+        run: ./dip image --name=alpine --regex=^3\.[0-9]+\.[0-9]+$ --updateDockerfile
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19.0
       - name: Check Golang
-        run: ./dip image --name=golang --regex=^1\.[0-9]+\.[0-9]+-alpine3\.[0-9]+$ --dockerfile
+        run: |
+          ./dip image --name=golang --regex=^1\.[0-9]+\.[0-9]+-alpine3\.[0-9]+$ --updateDockerfile
+          echo "Updating golang dependencies..."
+          go get -u ./...
+          go mod tidy
       - name: Check golangci-lint
         run: |
           GOLANGCI_LINT_VERSION=$(./dip image --name=golangci/golangci-lint --regex=^v1\.[0-9]+\.[0-9]+-alpine$)
           echo "Check whether the latest GolangCI version: '${GOLANGCI_LINT_VERSION}' is used..."
-          grep "golangci-lint:${GOLANGCI_LINT_VERSION}" ./.github/workflows/go.yml
+          sed -i "s|\(golangci-lint:\)v1\.[0-9]\+\.[0-9]\+\-alpine|\1${GOLANGCI_LINT_VERSION}|" ./.github/workflows/go.yml
       - name: Check Yamllint
         run: |
           YAMLLINT_VERSION=$(./dip image --name=pipelinecomponents/yamllint --regex=0\..*)
           echo "Check whether the latest yamllint version: '${YAMLLINT_VERSION}' is used..."
-          grep "pipelinecomponents/yamllint:${YAMLLINT_VERSION}" ./.github/workflows/yamllint.yml
+          sed -i "s|\(pipelinecomponents/yamllint:\).*|\1${YAMLLINT_VERSION}|" ./.github/workflows/yamllint.yml
+      - uses: EndBug/add-and-commit@v9
+        with:
+          author_name: github-actions[bot]
+          author_email: 41898282+github-actions[bot]@users.noreply.github.com
+          message: 'build(deps): Update versions.'
+          new_branch: dependencies-updater-bot
+      - name: create pull request
+        run: |
+          gh pr create --assignee 030 --base main --head dependencies-updater-bot --title 'Update dependencies' --body 'Created by Github action' --reviewer 030
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
