@@ -10,5 +10,5 @@ docker run \
   -e YAAM_USER=hello \
   -e YAAM_PASS=world \
   -p 25213:25213 \
-  -it utrecht/yaam:v0.4.1
+  -it utrecht/yaam:v0.4.2
 ```
