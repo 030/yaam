@@ -10,7 +10,7 @@ require (
 	github.com/spf13/viper v1.13.0
 	github.com/tidwall/gjson v1.14.3
 	github.com/tj/assert v0.0.3
-	golang.org/x/exp v0.0.0-20220929160808-de9c53c655b9
+	golang.org/x/exp v0.0.0-20220930202632-ec3f01382ef9
 )
 
 require (
