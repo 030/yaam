@@ -2,8 +2,15 @@
 ## [Unreleased]
 
 
+<a name="v0.4.2"></a>
+## [v0.4.2] - 2022-10-01
+### Build
+- **deps:** Update versions.
+- **deps:** Add auto updater that creates a PR.
+
+
 <a name="v0.4.1"></a>
-## [v0.4.1] - 2022-09-23
+## [v0.4.1] - 2022-09-24
 ### Docs
 - [[#21](https://github.com/030/yaam/issues/21)] Describe how to configure and start YAAM.
 
@@ -37,7 +44,8 @@
 <a name="v0.2.1"></a>
 ## v0.2.1 - 2022-08-23
 
-[Unreleased]: https://github.com/030/yaam/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/030/yaam/compare/v0.4.2...HEAD
+[v0.4.2]: https://github.com/030/yaam/compare/v0.4.1...v0.4.2
 [v0.4.1]: https://github.com/030/yaam/compare/v0.4.0...v0.4.1
 [v0.4.0]: https://github.com/030/yaam/compare/v0.3.0...v0.4.0
 [v0.3.0]: https://github.com/030/yaam/compare/v0.2.0...v0.3.0
