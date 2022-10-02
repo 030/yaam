@@ -7,6 +7,7 @@ import (
 
 	"github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -22,19 +23,36 @@ var (
 	Url         = Scheme + "://" + HostAndPort
 )
 
+func Config() error {
+	h, err := Home()
+	if err != nil {
+		return err
+	}
+
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(h)
+	if err := viper.ReadInConfig(); err != nil {
+		return err
+	}
+	log.Infof("config file used: '%s'", viper.ConfigFileUsed())
+
+	return nil
+}
+
 func Home() (string, error) {
 	h, err := homedir.Dir()
 	if err != nil {
 		return "", err
 	}
-	yh := filepath.Join(h, hiddenFolderName)
+	h = filepath.Join(h, hiddenFolderName)
 
 	if os.Getenv("YAAM_HOME") != "" {
-		yh = os.Getenv("YAAM_HOME")
+		h = os.Getenv("YAAM_HOME")
 	}
-	log.Debugf("yaam home: '%s'", yh)
+	log.Debugf("yaam home: '%s'", h)
 
-	return yh, nil
+	return h, nil
 }
 
 func RepositoriesHome() (string, error) {
@@ -42,8 +60,7 @@ func RepositoriesHome() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	h = filepath.Join(h, "repositories")
 
-	rh := filepath.Join(h, "repositories")
-
-	return rh, nil
+	return h, nil
 }

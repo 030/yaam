@@ -56,7 +56,56 @@ of artifact types. Yet Another Artifact Manager (YAAM):
   preserves NPM and Maven packages from public repositories and unifies Maven
   repositories.
 
-## Configuration
+## Quickstart
+
+Configure YAAM by creating a `~/.yaam/config.yml` with the following content:
+
+```bash
+---
+caches:
+  maven:
+    3rdparty-maven:
+      url: https://repo.maven.apache.org/maven2/
+    3rdparty-maven-gradle-plugins:
+      url: https://plugins.gradle.org/m2/
+    3rdparty-maven-spring:
+      url: https://repo.spring.io/release/
+    other-nexus-repo-releases:
+      url: https://some-nexus/repository/some-repo/
+      user: some-user
+      pass: some-pass
+  npm:
+    3rdparty-npm:
+      url: https://registry.npmjs.org/
+groups:
+  maven:
+    hello:
+      - maven/releases
+      - maven/3rdparty-maven
+      - maven/3rdparty-maven-gradle-plugins
+      - maven/3rdparty-maven-spring
+publications:
+  generic:
+    - something
+  maven:
+    - releases
+  npm:
+    - 3rdparty-npm
+```
+
+Start YAAM:
+
+```bash
+mkdir ~/.yaam/repositories
+sudo chown 9999 -R ~/.yaam/repositories
+docker run -e YAAM_USER=hello -e YAAM_PASS=world --rm --name=yaam \
+-it -v /home/${USER}/.yaam:/opt/yaam/.yaam -p 25213:25213 yaam
+```
+
+Configure the URLs in the build.gradle and settings.gradle and run
+./gradlew clean
+
+Configure a .npmrc in an NPM project and run `npm i -d`.
 
 ### General
 

@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/030/yaam/internal/pkg/project"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slices"
@@ -35,20 +34,8 @@ func validate(requestURI string) error {
 	return nil
 }
 
-func allowedRepo(name, repoType string) error {
-	h, err := project.Home()
-	if err != nil {
-		return err
-	}
-
-	viper.SetConfigName(repoType)
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(filepath.Join(h, "conf", "repositories"))
-	if err := viper.ReadInConfig(); err != nil {
-		return err
-	}
-
-	repos := viper.GetStringSlice("allowedRepos")
+func allowedRepo(name, artifactType string) error {
+	repos := viper.GetStringSlice("publications." + artifactType)
 	if !slices.Contains(repos, name) {
 		return fmt.Errorf("repository: '%s' is not allowed. Allowed repos: '%v'", name, repos)
 	}

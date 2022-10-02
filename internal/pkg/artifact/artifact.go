@@ -107,31 +107,37 @@ func ReadFromDisk(w http.ResponseWriter, reqURL string) error {
 // attempted to download a file, it will look up the name in the config file
 // and find the public URLs so it can download the file from the public maven
 // repository and cache it on disk.
-func RepoInConfigFile(w http.ResponseWriter, urlString string) (PublicRepository, error) {
-	yh, err := project.Home()
-	if err != nil {
-		return PublicRepository{}, err
+func RepoInConfigFile(w http.ResponseWriter, urlString, artifactType string) (PublicRepository, error) {
+	reposAndElements := viper.GetStringMap("caches." + artifactType)
+	if len(reposAndElements) == 0 {
+		return PublicRepository{}, fmt.Errorf("caches: '%s' not found in config file", artifactType)
 	}
 
-	viper.SetConfigName("caches")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(filepath.Join(yh, "conf"))
-	if err := viper.ReadInConfig(); err != nil {
-		return PublicRepository{}, err
-	}
+	for repo, elements := range reposAndElements {
+		url, ok := elements.(map[string]interface{})["url"]
+		if ok {
+			log.Debugf("url: '%s'", url)
+		}
+		user, ok := elements.(map[string]interface{})["user"]
+		if ok {
+			log.Debugf("user: '%s'", user)
+		}
+		pass, ok := elements.(map[string]interface{})["pass"]
+		if ok {
+			log.Debug("pass: **********")
+		}
 
-	reposAndUrls := viper.GetStringMapString("mavenReposAndUrls")
-	for repo, url := range reposAndUrls {
-
-		// if err := pr.cache(n.RequestURL); err != nil {
-		// 	return err
-		// }
-		// reqURLString := reqURL.String()
 		log.Debugf("trying to cache artifact from: '%s'...", urlString)
 
-		rr := repoRegex(repo)
+		rr := repoRegex(repo, artifactType)
 		log.Debugf("repoRegex: '%s'", rr)
-		pr := PublicRepository{Name: repo, Regex: rr, Url: url}
+
+		pr := PublicRepository{Name: repo, Regex: rr, Url: url.(string)}
+		if user != nil && pass != nil {
+			pr.User = user.(string)
+			pr.Pass = pass.(string)
+		}
+
 		riu, err := repoInUrl(rr, urlString)
 		if err != nil {
 			return PublicRepository{}, err
@@ -139,9 +145,6 @@ func RepoInConfigFile(w http.ResponseWriter, urlString string) (PublicRepository
 		log.Debugf("repoInUrl: '%t'", riu)
 
 		if riu {
-			// if err := pr.createDirAndStoreOnDisk(rr, reqURLString); err != nil {
-			// 	return err
-			// }
 			return pr, nil
 		}
 	}
@@ -150,11 +153,11 @@ func RepoInConfigFile(w http.ResponseWriter, urlString string) (PublicRepository
 }
 
 type PublicRepository struct {
-	Name, Regex, Url string
+	Name, Regex, Url, User, Pass string
 }
 
-func repoRegex(repo string) string {
-	return `^/(maven|npm)/` + repo + `/(.*)$`
+func repoRegex(repo, repoType string) string {
+	return `^/` + repoType + `/` + repo + `/(.*)$`
 }
 
 func repoInUrl(repoRegex, url string) (bool, error) {
@@ -170,14 +173,14 @@ func repoInUrl(repoRegex, url string) (bool, error) {
 
 func DownloadUrl(publicRepoUrl, regex, url string) (string, error) {
 	log.Debugf("check whether url: '%s' matches regex: '%s'. Params -> publicRepoUrl: '%s', regex: '%s' and url: '%s'", url, regex, publicRepoUrl, regex, url)
-	re := regexp.MustCompile(regex)
-	match := re.FindStringSubmatch(url)
-	log.Debugf("number of matching elements: %d", len(match))
-	if len(match) != 3 {
+	r := regexp.MustCompile(regex)
+	match := r.FindStringSubmatch(url)
+	log.Debugf("number of matching elements: %d. Content: '%v'", len(match), match)
+	if len(match) != 2 {
 		return "", fmt.Errorf("should be 3! publicRepoUrl: '%s', regex: '%s', url: '%s'", publicRepoUrl, regex, url)
 	}
 
-	u := re.ReplaceAllString(url, publicRepoUrl+`$2`)
+	u := r.ReplaceAllString(url, publicRepoUrl+`$1`)
 
 	return u, nil
 }

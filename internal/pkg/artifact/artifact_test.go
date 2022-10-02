@@ -6,8 +6,21 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/030/yaam/internal/pkg/project"
+	"github.com/030/yaam/internal/pkg/yaamtest"
+	log "github.com/sirupsen/logrus"
 	"github.com/tj/assert"
 )
+
+func init() {
+	if err := yaamtest.Config(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := project.Config(); err != nil {
+		log.Fatal(err)
+	}
+}
 
 func TestStoreOnDisk(t *testing.T) {
 	s := strings.NewReader("Hola mundo!")

@@ -2,11 +2,11 @@ dip
 
 cmd/yaam/yaam
 
-test/gradle/demo/.gradle
-test/gradle/demo/build
-test/gradle/demo/build.gradle
-test/gradle/demo/settings.gradle
+test/testdata/gradle/demo/.gradle
+test/testdata/gradle/demo/build
+test/testdata/gradle/demo/build.gradle
+test/testdata/gradle/demo/settings.gradle
 
-test/npm/demo/node_modules
-test/npm/demo/.npmrc
-test/npm/demo/package-lock.json
+test/testdata/npm/demo/node_modules
+test/testdata/npm/demo/.npmrc
+test/testdata/npm/demo/package-lock.json

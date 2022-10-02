@@ -4,7 +4,7 @@
 
 ```bash
 ---
-mavenReposAndUrls:
+reposAndUrls:
   3rdparty-maven: https://repo.maven.apache.org/maven2/
   3rdparty-maven-gradle-plugins: https://plugins.gradle.org/m2/
   3rdparty-maven-spring: https://repo.spring.io/release/

@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/030/yaam/internal/api"
-	"github.com/030/yaam/internal/artifact"
+	"github.com/030/yaam/internal/app/yaam/api"
+	"github.com/030/yaam/internal/app/yaam/artifact"
 	"github.com/030/yaam/internal/pkg/project"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -128,7 +128,7 @@ func npmArtifact(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	n := artifact.Maven{RequestBody: r.Body, RequestURI: r.RequestURI, ResponseWriter: w}
+	n := artifact.Npm{RequestBody: r.Body, RequestURI: r.RequestURI, ResponseWriter: w}
 	if r.Method == "POST" {
 		var p artifact.Publisher = n
 		if err := p.Publish(); err != nil {
@@ -189,6 +189,10 @@ func main() {
 		ReadTimeout:  time.Second * 180,
 		IdleTimeout:  time.Second * 240,
 		Handler:      r, // Pass our instance of gorilla/mux in.
+	}
+
+	if err := project.Config(); err != nil {
+		log.Fatal(err)
 	}
 
 	log.Infof("Starting YAAM version: '%s' on localhost on port: '%d'...", Version, project.Port)

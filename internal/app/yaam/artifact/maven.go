@@ -41,8 +41,9 @@ func maven(url string, repoInConfigFile artifact.PublicRepository) (artefact, er
 }
 
 func (m Maven) downloadAgainIfInvalid(a artefact, resp *http.Response) error {
+	log.Debug(resp.StatusCode)
 	if resp.StatusCode == http.StatusOK {
-		if err := file.CreateIfDoesNotExistOrEmpty(a.url, a.path, resp.Body); err != nil {
+		if err := file.CreateIfDoesNotExistInvalidOrEmpty(a.url, a.path, resp.Body, false); err != nil {
 			return err
 		}
 	}
@@ -63,7 +64,7 @@ func (m Maven) Preserve(urlStrings ...string) error {
 	}
 	log.Debugf("urlString: '%s'", urlString)
 
-	repoInConfigFile, err := artifact.RepoInConfigFile(m.ResponseWriter, urlString)
+	repoInConfigFile, err := artifact.RepoInConfigFile(m.ResponseWriter, urlString, "maven")
 	if err != nil {
 		return err
 	}
@@ -74,7 +75,7 @@ func (m Maven) Preserve(urlStrings ...string) error {
 			return err
 		}
 
-		resp, err := file.DownloadWithRetries(a.url)
+		resp, err := file.DownloadWithRetries(a.url, repoInConfigFile.User, repoInConfigFile.Pass)
 		if err != nil {
 			return err
 		}

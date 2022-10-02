@@ -4,7 +4,7 @@
 
 ```bash
 ---
-mavenReposAndUrls:
+reposAndUrls:
   3rdparty-npm: https://registry.npmjs.org/
 ```
 
