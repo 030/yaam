@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/030/yaam/internal/pkg/project"
+	"github.com/030/yaam/internal/app/yaam/project"
 )
 
-func StatusHelper(method, uri string, body io.Reader, timeout time.Duration) (string, error) {
+func Status(method, uri string, body io.Reader, timeout time.Duration) (string, error) {
 	client := &http.Client{
 		Timeout: time.Second * timeout,
 	}

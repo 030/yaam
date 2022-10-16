@@ -52,17 +52,28 @@ of artifact types. Yet Another Artifact Manager (YAAM):
 - has no UI.
 - does not have a database.
 - scales horizontally.
-- supports downloading and publication of Generic, Maven and NPM artefacts,
-  preserves NPM and Maven packages from public repositories and unifies Maven
-  repositories.
+- supports downloading and publication of Apt, Generic, Maven and NPM
+  artefacts, preserves NPM and Maven packages from public repositories and
+  unifies Maven repositories.
 
 ## Quickstart
+
+Create a directory and change the permissions to ensure that YAAM can store
+artifacts:
+
+```bash
+mkdir ~/.yaam/repositories
+sudo chown 9999 -R ~/.yaam/repositories
+```
 
 Configure YAAM by creating a `~/.yaam/config.yml` with the following content:
 
 ```bash
 ---
 caches:
+  apt:
+    3rdparty-ubuntu-nl-archive:
+      url: http://nl.archive.ubuntu.com/ubuntu/
   maven:
     3rdparty-maven:
       url: https://repo.maven.apache.org/maven2/
@@ -96,49 +107,190 @@ publications:
 Start YAAM:
 
 ```bash
-mkdir ~/.yaam/repositories
-sudo chown 9999 -R ~/.yaam/repositories
-docker run -e YAAM_USER=hello -e YAAM_PASS=world --rm --name=yaam \
--it -v /home/${USER}/.yaam:/opt/yaam/.yaam -p 25213:25213 yaam
+docker run \
+  -e YAAM_DEBUG=false \
+  -e YAAM_USER=hello \
+  -e YAAM_PASS=world \
+  --rm \
+  --name=yaam \
+  -it \
+  -v /home/${USER}/.yaam:/opt/yaam/.yaam \
+  -p 25213:25213 utrecht/yaam:v0.5.0
 ```
 
-Configure the URLs in the build.gradle and settings.gradle and run
+Once YAAM has been started, configure a project to ensure that artifacts will
+be downloaded from this artifact manager.
+
+### Apt
+
+sudo vim /etc/apt/auth.conf.d/hello.conf
+
+```bash
+machine http://localhost
+login hello
+password world
+```
+
+sudo vim /etc/apt/sources.list
+
+```bash
+deb http://localhost:25213/apt/3rdparty-ubuntu-nl-archive/ focal main restricted
+```
+
+Preserve the artifacts:
+
+```bash
+sudo apt-get update
+```
+
+### Generic
+
+Upload:
+
+```bash
+curl -X POST -u hello:world \
+http://yaam.some-domain/generic/something/world4.iso \
+--data-binary @/home/${USER}/Downloads/ubuntu-22.04.1-desktop-amd64.iso
+```
+
+Troubleshooting:
+
+```bash
+413 Request Entity Too Large
+```
+
+add:
+
+```bash
+data:
+  proxy-body-size: 5G
+```
+
+and restart the controller pod.
+
+Verify in the `/etc/nginx/nginx.conf` file that the `client_max_body_size` has
+been increased to 5G.
+
+Download:
+
+```bash
+curl -u hello:world http://yaam.some-domain/generic/something/world6.iso \
+-o /tmp/world6.iso
+```
+
+### Gradle
+
+Adjust the `build.gradle` and/or `settings.gradle`:
+
+```bash
+repositories {
+  maven {
+    allowInsecureProtocol true
+    url 'http://localhost:25213/maven/releases/'
+    authentication {
+      basic(BasicAuthentication)
+    }
+    credentials {
+      username "hello"
+      password "world"
+    }
+  }
+  maven {
+    allowInsecureProtocol true
+    url 'http://localhost:25213/maven/3rdparty-maven/'
+    authentication {
+      basic(BasicAuthentication)
+    }
+    credentials {
+      username "hello"
+      password "world"
+    }
+  }
+  maven {
+    allowInsecureProtocol true
+    url 'http://localhost:25213/maven/3rdparty-maven-gradle-plugins/'
+    authentication {
+      basic(BasicAuthentication)
+    }
+    credentials {
+      username "hello"
+      password "world"
+    }
+  }
+}
+```
+
+Publish:
+
+```bash
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      versionMapping {
+        usage('java-api') {
+          fromResolutionOf('runtimeClasspath')
+        }
+        usage('java-runtime') {
+          fromResolutionResult()
+        }
+      }
+    }
+  }
+
+  repositories {
+    maven {
+        allowInsecureProtocol true
+        url 'http://localhost:25213/maven/releases/'
+        authentication {
+          basic(BasicAuthentication)
+        }
+        credentials {
+          username "hello"
+          password "world"
+        }
+    }
+  }
+}
+```
+
+Preserve the artifacts:
+
+```bash
 ./gradlew clean
+```
 
-Configure a .npmrc in an NPM project and run `npm i -d`.
+or publish them:
 
-### General
+```bash
+./gradlew publish
+```
 
-- [Base.](docs/config/BASE.md)
+### NPM
 
-### Artifact types
+Create a `.npmrc` file in the directory of a particular NPM project:
 
-- [Generic.](docs/config/GENERIC.md)
-- [Maven.](docs/config/MAVEN.md)
-- [NPM.](docs/config/NPM.md)
+```bash
+registry=http://localhost:25213/npm/3rdparty-npm/
+always-auth=true
+_auth=aGVsbG86d29ybGQ=
+cache=/tmp/some-yaam-repo/npm/cache20220914120431999
+```
 
-## Start
+Note: the `_auth` key should be populated with the output of:
+`echo -n 'someuser:somepass' | openssl base64`.
+
+```bash
+npm i -d
+```
+
+## Run
+
+Next to docker, one could also use a binary or K8s or OpenShift to run YAAM:
 
 - [Binary.](docs/start/BINARY.md)
-- [Docker.](docs/start/DOCKER.md)
 - [K8s/OpenShift.](docs/start/K8SOPENSHIFT.md)
-
-## Capabilities
-
-### Publish
-
-- [Generic.](docs/publish/GENERIC.md)
-- [Maven.](docs/publish/MAVEN.md)
-
-### Preserve
-
-- [Maven.](docs/preserve/MAVEN.md)
-- [NPM.](docs/preserve/NPM.md)
-
-### Unify
-
-- [Maven.](docs/unify/MAVEN.md)
 
 ## Other
 
 - [Background.](docs/other/BACKGROUND.md)
+- [Maven unify.](docs/other/MAVEN.md)

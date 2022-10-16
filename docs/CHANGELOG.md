@@ -2,9 +2,17 @@
 ## [Unreleased]
 
 
+<a name="v0.5.0"></a>
+## [v0.5.0] - 2022-10-16
+### Feat
+- **preserve:** [[#7](https://github.com/030/yaam/issues/7)] Preserve Apt.
+- **preserve:** [[#24](https://github.com/030/yaam/issues/24)] Nexus3 repository.
+
+
 <a name="v0.4.2"></a>
 ## [v0.4.2] - 2022-10-01
 ### Build
+- **deps:** Update versions.
 - **deps:** Update versions.
 - **deps:** Add auto updater that creates a PR.
 
@@ -44,7 +52,8 @@
 <a name="v0.2.1"></a>
 ## v0.2.1 - 2022-08-23
 
-[Unreleased]: https://github.com/030/yaam/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/030/yaam/compare/v0.5.0...HEAD
+[v0.5.0]: https://github.com/030/yaam/compare/v0.4.2...v0.5.0
 [v0.4.2]: https://github.com/030/yaam/compare/v0.4.1...v0.4.2
 [v0.4.1]: https://github.com/030/yaam/compare/v0.4.0...v0.4.1
 [v0.4.0]: https://github.com/030/yaam/compare/v0.3.0...v0.4.0

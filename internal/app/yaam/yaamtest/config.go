@@ -7,12 +7,16 @@ import (
 )
 
 const (
-	Testdata              = "../../test/testdata"
-	gradleHomeDemoProject = Testdata + "/gradle/demo"
-	npmHomeDemoProject    = Testdata + "/npm/demo"
+	Testdata              = "test/testdata"
+	TestdataCwd           = "../../" + Testdata
+	gradleHomeDemoProject = TestdataCwd + "/gradle/demo"
+	npmHomeDemoProject    = TestdataCwd + "/npm/demo"
 
 	conf = `---
 caches:
+  apt:
+    3rdparty-ubuntu-nl-archive:
+      url: http://nl.archive.ubuntu.com/ubuntu/
   maven:
     3rdparty-maven:
       url: https://repo.maven.apache.org/maven2/

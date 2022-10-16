@@ -7,9 +7,8 @@ import (
 	"path/filepath"
 	"reflect"
 
-	"github.com/030/yaam/internal/pkg/artifact"
-	"github.com/030/yaam/internal/pkg/file"
-	"github.com/030/yaam/internal/pkg/project"
+	"github.com/030/yaam/internal/app/yaam/file"
+	"github.com/030/yaam/internal/app/yaam/project"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -19,17 +18,17 @@ type Maven struct {
 	RequestURI     string
 }
 
-func maven(url string, repoInConfigFile artifact.PublicRepository) (artefact, error) {
+func maven(url string, repoInConfigFile PublicRepository) (artefact, error) {
 	h, err := project.RepositoriesHome()
 	if err != nil {
 		return artefact{}, err
 	}
 
-	if err := artifact.Dir(url); err != nil {
+	if err := Dir(url); err != nil {
 		return artefact{}, err
 	}
 
-	du, err := artifact.DownloadUrl(repoInConfigFile.Url, repoInConfigFile.Regex, url)
+	du, err := DownloadUrl(repoInConfigFile.Url, repoInConfigFile.Regex, url)
 	if err != nil {
 		return artefact{}, err
 	}
@@ -64,7 +63,7 @@ func (m Maven) Preserve(urlStrings ...string) error {
 	}
 	log.Debugf("urlString: '%s'", urlString)
 
-	repoInConfigFile, err := artifact.RepoInConfigFile(m.ResponseWriter, urlString, "maven")
+	repoInConfigFile, err := RepoInConfigFile(m.ResponseWriter, urlString, "maven")
 	if err != nil {
 		return err
 	}
@@ -94,7 +93,7 @@ func (m Maven) Preserve(urlStrings ...string) error {
 }
 
 func (m Maven) Publish() error {
-	if err := artifact.StoreOnDisk(m.RequestURI, m.RequestBody); err != nil {
+	if err := StoreOnDisk(m.RequestURI, m.RequestBody); err != nil {
 		return err
 	}
 
@@ -102,7 +101,7 @@ func (m Maven) Publish() error {
 }
 
 func (m Maven) Read() error {
-	if err := artifact.ReadFromDisk(m.ResponseWriter, m.RequestURI); err != nil {
+	if err := ReadFromDisk(m.ResponseWriter, m.RequestURI); err != nil {
 		return fmt.Errorf(file.CannotReadErrMsg, err)
 	}
 
@@ -131,7 +130,7 @@ func (m Maven) Unify(name string) error {
 		}
 
 		if _, fileExists := file.Exists(filepath.Join(h, urlString)); fileExists {
-			if err := artifact.ReadFromDisk(m.ResponseWriter, urlString); err != nil {
+			if err := ReadFromDisk(m.ResponseWriter, urlString); err != nil {
 				log.Warnf(file.CannotReadErrMsg, err)
 			}
 			return nil

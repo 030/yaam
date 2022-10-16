@@ -9,34 +9,41 @@ kind: ConfigMap
 metadata:
   name: conf
 data:
-  caches.yaml: |-
-    mavenReposAndUrls:
-      3rdparty-maven: https://repo.maven.apache.org/maven2/
-      3rdparty-maven-gradle-plugins: https://plugins.gradle.org/m2/
-      3rdparty-maven-spring: https://repo.spring.io/release/
-      3rdparty-npm: https://registry.npmjs.org/
-  groups.yaml: |-
+  config.yml: |-
+    ---
+    caches:
+      apt:
+        3rdparty-ubuntu-nl-archive:
+          url: http://nl.archive.ubuntu.com/ubuntu/
+      maven:
+        3rdparty-maven:
+          url: https://repo.maven.apache.org/maven2/
+        3rdparty-maven-gradle-plugins:
+          url: https://plugins.gradle.org/m2/
+        3rdparty-maven-spring:
+          url: https://repo.spring.io/release/
+        other-nexus-repo-releases:
+          url: https://some-nexus/repository/some-repo/
+          user: some-user
+          pass: some-pass
+      npm:
+        3rdparty-npm:
+          url: https://registry.npmjs.org/
     groups:
-      hello:
-        - maven/releases
-        - maven/3rdparty-maven
-        - maven/3rdparty-maven-gradle-plugins
-        - maven/3rdparty-maven-spring
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: conf-repos
-data:
-  generic.yaml: |-
-    allowedRepos:
-      - something
-  maven.yaml: |-
-    allowedRepos:
-      - releases
-  npm.yaml: |-
-    allowedRepos:
-      - 3rdparty-npm
+      maven:
+        hello:
+          - maven/releases
+          - maven/3rdparty-maven
+          - maven/3rdparty-maven-gradle-plugins
+          - maven/3rdparty-maven-spring
+          - maven/other-nexus-repo-releases
+    publications:
+      generic:
+        - something
+      maven:
+        - releases
+      npm:
+        - 3rdparty-npm
 ---
 apiVersion: v1
 data:
@@ -92,12 +99,6 @@ spec:
           averageUtilization: 90
           type: Utilization
       type: Resource
-    - resource:
-        name: memory
-        target:
-          averageUtilization: 80
-          type: Utilization
-      type: Resource
   minReplicas: 2
   scaleTargetRef:
     apiVersion: apps/v1
@@ -138,7 +139,7 @@ spec:
                 secretKeyRef:
                   name: creds
                   key: pass
-          image: utrecht/yaam:v0.4.2
+          image: utrecht/yaam:v0.5.0
           livenessProbe:
             httpGet:
               path: /status
@@ -149,28 +150,23 @@ spec:
               port: 25213
           resources:
             limits:
-              cpu: 240m
-              memory: 24Mi
+              cpu: 480m
+              memory: 30Mi
             requests:
-              cpu: 2m
-              memory: 8Mi
+              cpu: 96m
+              memory: 5Mi
           ports:
             - containerPort: 25213
               name: yaam
           volumeMounts:
             - name: conf
-              mountPath: /opt/yaam/.yaam/conf
-            - name: conf-repos
-              mountPath: /opt/yaam/.yaam/conf/repositories
+              mountPath: /opt/yaam/.yaam
             - name: repositories
               mountPath: /opt/yaam/.yaam/repositories
       volumes:
         - name: conf
           configMap:
             name: conf
-        - name: conf-repos
-          configMap:
-            name: conf-repos
         - name: repositories
           persistentVolumeClaim:
             claimName: repositories

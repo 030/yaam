@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/030/yaam/internal/pkg/project"
+	"github.com/030/yaam/internal/app/yaam/project"
 )
 
 var (

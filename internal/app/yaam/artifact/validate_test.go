@@ -4,8 +4,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/030/yaam/internal/pkg/project"
-	"github.com/030/yaam/internal/pkg/yaamtest"
+	"github.com/030/yaam/internal/app/yaam/project"
+	"github.com/030/yaam/internal/app/yaam/yaamtest"
 	log "github.com/sirupsen/logrus"
 	"github.com/tj/assert"
 )

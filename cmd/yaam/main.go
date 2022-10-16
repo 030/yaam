@@ -9,7 +9,7 @@ import (
 
 	"github.com/030/yaam/internal/app/yaam/api"
 	"github.com/030/yaam/internal/app/yaam/artifact"
-	"github.com/030/yaam/internal/pkg/project"
+	"github.com/030/yaam/internal/app/yaam/project"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
@@ -83,6 +83,33 @@ func mavenGroup(w http.ResponseWriter, r *http.Request) {
 	if err := p.Unify(groupName); err != nil {
 		log.Error(fmt.Errorf("grouping failed. Error: '%v'", err))
 		http.Error(w, serverLogMsg, http.StatusInternalServerError)
+		return
+	}
+}
+
+func aptArtifact(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
+	if err := api.Validation(r.Method, r, w); err != nil {
+		httpInternalServerErrorReadTheLogs(w, err)
+		return
+	}
+
+	a := artifact.Apt{RequestBody: r.Body, RequestURI: r.RequestURI, ResponseWriter: w}
+
+	var ap artifact.Preserver = a
+	if err := ap.Preserve(); err != nil {
+		httpNotFoundReadTheLogs(w, err)
+		return
+	}
+
+	var ar artifact.Reader = a
+	if err := ar.Read(); err != nil {
+		httpNotFoundReadTheLogs(w, err)
 		return
 	}
 }
@@ -176,6 +203,7 @@ func main() {
 	}
 
 	r := mux.NewRouter()
+	r.HandleFunc("/apt/{repo}/{artifact:.*}", aptArtifact)
 	r.HandleFunc("/generic/{repo}/{artifact:.*}", genericArtifact)
 	r.HandleFunc("/maven/groups/{name}/{artifact:.*}", mavenGroup)
 	r.HandleFunc("/maven/{repo}/{artifact:.*}", mavenArtifact)

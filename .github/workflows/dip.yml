@@ -47,7 +47,7 @@ jobs:
           chmod +x /tmp/git-chglog
           /tmp/git-chglog -o docs/CHANGELOG.md --config configs/chglog/config.yml --next-tag ${tag}
           echo "Checking README.md..."
-          sed -i "s|\(yaam:\).*|\1${tag}|" docs/start/DOCKER.md
+          sed -i "s|\(yaam:\).*|\1${tag}|" README.md
           echo "Checking k8s-openshift deployment..."
           sed -i "s|\(yaam:\).*|\1${tag}|" deployments/k8s-openshift/deploy.yml
       - uses: EndBug/add-and-commit@v9

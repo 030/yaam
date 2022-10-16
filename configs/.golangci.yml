@@ -11,11 +11,11 @@ issues:
       text: "don't use `init` function"
     - linters:
         - gochecknoinits
-      path: internal/pkg/artifact/artifact_test.go
+      path: internal/app/yaam/artifact/artifact_test.go
       text: "don't use `init` function"
     - linters:
         - gochecknoinits
-      path: internal/pkg/artifact/validate_test.go
+      path: internal/app/yaam/artifact/validate_test.go
       text: "don't use `init` function"
 linters:
   enable-all: true

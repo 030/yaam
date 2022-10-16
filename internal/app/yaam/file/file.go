@@ -79,16 +79,17 @@ func CreateIfDoesNotExistInvalidOrEmpty(url, f string, body io.ReadCloser, inval
 }
 
 func EmptyFile(f string) (emptyFile bool) {
+	emptyFile = false
 	fileSize, fileExists := Exists(f)
 	if !fileExists {
-		return false
+		return emptyFile
 	}
 
 	if fileSize == 0 {
 		log.Errorf("file: '%s' size is 0", f)
 		log.Warnf(WaitMsg, RetryDuration)
 		time.Sleep(RetryDuration)
-		return true
+		emptyFile = true
 	}
 
 	return emptyFile

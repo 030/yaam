@@ -13,9 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/030/yaam/internal/pkg/artifact"
-	"github.com/030/yaam/internal/pkg/file"
-	"github.com/030/yaam/internal/pkg/project"
+	"github.com/030/yaam/internal/app/yaam/file"
+	"github.com/030/yaam/internal/app/yaam/project"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 )
@@ -193,7 +192,7 @@ func (n Npm) Preserve(urlStrings ...string) error {
 		urlString = urlStrings[0]
 	}
 
-	repoInConfigFile, err := artifact.RepoInConfigFile(n.ResponseWriter, urlString, "npm")
+	repoInConfigFile, err := RepoInConfigFile(n.ResponseWriter, urlString, "npm")
 	if err != nil {
 		return err
 	}
@@ -209,12 +208,12 @@ func (n Npm) Preserve(urlStrings ...string) error {
 			log.Debugf("file: '%s' does not have an extension", dir)
 			dir = dir + ".tmp"
 		}
-		if err := artifact.Dir(dir); err != nil {
+		if err := Dir(dir); err != nil {
 			return err
 		}
 
 		log.Debugf("downloadUrl before entering downloadUrl method: '%s', regex: '%s'", urlString, repoInConfigFile.Regex)
-		du, err := artifact.DownloadUrl(repoInConfigFile.Url, repoInConfigFile.Regex, urlString)
+		du, err := DownloadUrl(repoInConfigFile.Url, repoInConfigFile.Regex, urlString)
 		if err != nil {
 			return err
 		}
@@ -243,7 +242,7 @@ func (n Npm) Preserve(urlStrings ...string) error {
 }
 
 func (n Npm) Publish() error {
-	if err := artifact.StoreOnDisk(n.RequestURI, n.RequestBody); err != nil {
+	if err := StoreOnDisk(n.RequestURI, n.RequestBody); err != nil {
 		return err
 	}
 
@@ -256,7 +255,7 @@ func (n Npm) Read() error {
 		log.Debugf("file: '%s' does not have an extension", reqUrlString)
 		reqUrlString = reqUrlString + ".tmp"
 	}
-	if err := artifact.ReadFromDisk(n.ResponseWriter, reqUrlString); err != nil {
+	if err := ReadFromDisk(n.ResponseWriter, reqUrlString); err != nil {
 		return fmt.Errorf(file.CannotReadErrMsg, err)
 	}
 

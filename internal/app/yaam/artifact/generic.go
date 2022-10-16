@@ -7,8 +7,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/030/yaam/internal/pkg/artifact"
-	"github.com/030/yaam/internal/pkg/file"
+	"github.com/030/yaam/internal/app/yaam/file"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -21,7 +20,7 @@ type Generic struct {
 }
 
 func (g Generic) Publish() error {
-	if err := artifact.StoreOnDisk(g.RequestURI, g.RequestBody); err != nil {
+	if err := StoreOnDisk(g.RequestURI, g.RequestBody); err != nil {
 		return err
 	}
 
@@ -29,7 +28,7 @@ func (g Generic) Publish() error {
 }
 
 func (g Generic) Read() error {
-	f, err := artifact.FilepathOnDisk(g.RequestURI)
+	f, err := FilepathOnDisk(g.RequestURI)
 	if err != nil {
 		return err
 	}

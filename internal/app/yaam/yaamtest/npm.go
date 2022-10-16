@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/030/yaam/internal/pkg/project"
+	"github.com/030/yaam/internal/app/yaam/project"
 )
 
 var npmrc = `registry=` + project.Url + `/npm/3rdparty-npm/

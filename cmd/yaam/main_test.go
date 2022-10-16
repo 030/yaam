@@ -8,12 +8,13 @@ import (
 	"os"
 	"testing"
 
-	"github.com/030/yaam/internal/pkg/project"
-	"github.com/030/yaam/internal/pkg/yaamtest"
+	"github.com/030/yaam/internal/app/yaam/project"
+	"github.com/030/yaam/internal/app/yaam/yaamtest"
 	"github.com/tj/assert"
 )
 
 const (
+	aptUri         = "/apt/3rdparty-ubuntu-nl-archive/some.iso"
 	genericUri     = "/generic/something/some.iso"
 	genericUriFail = "/generic/something2/some.iso"
 )
@@ -27,7 +28,7 @@ func init() {
 }
 
 func TestStatus(t *testing.T) {
-	b, err := yaamtest.StatusHelper("GET", "/status", nil, 10)
+	b, err := yaamtest.Status("GET", "/status", nil, 10)
 	if err != nil {
 		t.Error(err)
 	}
@@ -46,6 +47,23 @@ func TestMainNpmBuild(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, 0, exitCode)
+}
+
+// Apt
+func TestApt(t *testing.T) {
+	resp, _ := yaamtest.GenericArtifactReq("GET", aptUri, nil)
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Error(err)
+	}
+	bodyString := string(bodyBytes)
+
+	assert.Equal(t, "check the server logs\n", bodyString)
 }
 
 /*
