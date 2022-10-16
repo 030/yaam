@@ -7,9 +7,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/030/yaam/internal/api"
-	"github.com/030/yaam/internal/artifact"
-	"github.com/030/yaam/internal/pkg/project"
+	"github.com/030/yaam/internal/app/yaam/api"
+	"github.com/030/yaam/internal/app/yaam/artifact"
+	"github.com/030/yaam/internal/app/yaam/project"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
@@ -87,6 +87,33 @@ func mavenGroup(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func aptArtifact(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
+	if err := api.Validation(r.Method, r, w); err != nil {
+		httpInternalServerErrorReadTheLogs(w, err)
+		return
+	}
+
+	a := artifact.Apt{RequestBody: r.Body, RequestURI: r.RequestURI, ResponseWriter: w}
+
+	var ap artifact.Preserver = a
+	if err := ap.Preserve(); err != nil {
+		httpNotFoundReadTheLogs(w, err)
+		return
+	}
+
+	var ar artifact.Reader = a
+	if err := ar.Read(); err != nil {
+		httpNotFoundReadTheLogs(w, err)
+		return
+	}
+}
+
 func genericArtifact(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := r.Body.Close(); err != nil {
@@ -128,7 +155,7 @@ func npmArtifact(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	n := artifact.Maven{RequestBody: r.Body, RequestURI: r.RequestURI, ResponseWriter: w}
+	n := artifact.Npm{RequestBody: r.Body, RequestURI: r.RequestURI, ResponseWriter: w}
 	if r.Method == "POST" {
 		var p artifact.Publisher = n
 		if err := p.Publish(); err != nil {
@@ -176,6 +203,7 @@ func main() {
 	}
 
 	r := mux.NewRouter()
+	r.HandleFunc("/apt/{repo}/{artifact:.*}", aptArtifact)
 	r.HandleFunc("/generic/{repo}/{artifact:.*}", genericArtifact)
 	r.HandleFunc("/maven/groups/{name}/{artifact:.*}", mavenGroup)
 	r.HandleFunc("/maven/{repo}/{artifact:.*}", mavenArtifact)
@@ -189,6 +217,10 @@ func main() {
 		ReadTimeout:  time.Second * 180,
 		IdleTimeout:  time.Second * 240,
 		Handler:      r, // Pass our instance of gorilla/mux in.
+	}
+
+	if err := project.Config(); err != nil {
+		log.Fatal(err)
 	}
 
 	log.Infof("Starting YAAM version: '%s' on localhost on port: '%d'...", Version, project.Port)
