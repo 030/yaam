@@ -14,12 +14,17 @@ func validate(requestURI string) error {
 	log.Debugf("requestURI: '%s'", requestURI)
 	dir := filepath.Dir(requestURI)
 	ext := filepath.Ext(requestURI)
-	if dir == "/" || ext == "" {
+
+	regex := `/-/npm/v1/security/audits/quick$`
+	re := regexp.MustCompile(regex)
+	npmAudit := re.MatchString(requestURI)
+	log.Debugf("determine whether requestURI: '%s' represents a npmAudit file. Outcome: '%t'", requestURI, npmAudit)
+	if (dir == "/" || ext == "") && !npmAudit {
 		return fmt.Errorf("requestURI: '%s' should start with a: '/' and contain an extension", requestURI)
 	}
 
-	regex := `^/([a-z]+)/([0-9a-z-]+)/`
-	re := regexp.MustCompile(regex)
+	regex = `^/([a-z]+)/([0-9a-z-]+)/`
+	re = regexp.MustCompile(regex)
 	repoTypeAndName := re.FindStringSubmatch(requestURI)
 	if len(repoTypeAndName) <= 2 {
 		return fmt.Errorf("no repo type or name detected. Verify whether the regex: '%s' matches the URL: '%s'", regex, requestURI)
