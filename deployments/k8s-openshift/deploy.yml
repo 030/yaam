@@ -139,7 +139,7 @@ spec:
                 secretKeyRef:
                   name: creds
                   key: pass
-          image: utrecht/yaam:v0.5.0
+          image: utrecht/yaam:
           livenessProbe:
             httpGet:
               path: /status
