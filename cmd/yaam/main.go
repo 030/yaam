@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/030/logging/pkg/logging"
 	"github.com/030/yaam/internal/app/yaam/api"
 	"github.com/030/yaam/internal/app/yaam/artifact"
 	"github.com/030/yaam/internal/app/yaam/project"
@@ -78,7 +79,7 @@ func mavenGroup(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	artifactURI := vars["artifact"]
 	groupName := vars["name"]
-	log.Debugf("Group: %v, Artifact: %v", groupName, artifactURI)
+	log.Tracef("Group: %v, Artifact: %v", groupName, artifactURI)
 	var p artifact.Unifier = artifact.Maven{ResponseWriter: w, RequestURI: artifactURI}
 	if err := p.Unify(groupName); err != nil {
 		log.Error(fmt.Errorf("grouping failed. Error: '%v'", err))
@@ -192,14 +193,14 @@ func status(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	log.SetReportCaller(true)
-	log.SetFormatter(&log.TextFormatter{
-		DisableColors: true,
-		FullTimestamp: true,
-	})
-
-	if os.Getenv("YAAM_DEBUG") == "true" {
-		log.SetLevel(log.DebugLevel)
+	logLevel := "info"
+	logLevelEnv := os.Getenv("YAAM_LOG_LEVEL")
+	if logLevelEnv != "" {
+		logLevel = logLevelEnv
+	}
+	l := logging.Logging{File: "yaam.log", Level: logLevel, Syslog: true}
+	if _, err := l.Setup(); err != nil {
+		log.Fatal(err)
 	}
 
 	r := mux.NewRouter()

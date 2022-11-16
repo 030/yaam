@@ -10,3 +10,5 @@ test/testdata/gradle/demo/settings.gradle
 test/testdata/npm/demo/node_modules
 test/testdata/npm/demo/.npmrc
 test/testdata/npm/demo/package-lock.json
+
+*.log

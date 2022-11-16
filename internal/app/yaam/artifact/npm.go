@@ -38,9 +38,9 @@ func replaceUrlPublicNpmWithYaamHost(f string) error {
 		}
 		output := strings.Replace(string(input), "https://registry.npmjs.org", "http://"+host+"/npm/3rdparty-npm", -1)
 
-		var re = regexp.MustCompile(`(/@[a-z]+)(/)`)
+		re := regexp.MustCompile(`(/@[a-z]+)(/)`)
 		s := re.ReplaceAllString(output, `$1%2f`)
-		err = os.WriteFile(f, []byte(s), 0600)
+		err = os.WriteFile(f, []byte(s), 0o600)
 		if err != nil {
 			return err
 		}
@@ -60,12 +60,12 @@ func firstMatch(f, regex string) (string, error) {
 	re := regexp.MustCompile(regex)
 	match := re.FindStringSubmatch(f)
 	matchLength := len(match)
-	log.Debugf("regex: '%s', match: '%v' matchLength: '%d' for file: '%s'", regex, match, matchLength, f)
+	log.Tracef("regex: '%s', match: '%v' matchLength: '%d' for file: '%s'", regex, match, matchLength, f)
 	if matchLength <= 1 {
 		return "", fmt.Errorf("no match was found for: '%s' with regex: '%s'", f, regex)
 	}
 	m := match[1]
-	log.Debugf("firstMatch: '%s'", m)
+	log.Tracef("firstMatch: '%s'", m)
 
 	return m, nil
 }
@@ -212,7 +212,7 @@ func (n Npm) Preserve(urlStrings ...string) error {
 			return err
 		}
 
-		log.Debugf("downloadUrl before entering downloadUrl method: '%s', regex: '%s'", urlString, repoInConfigFile.Regex)
+		log.Tracef("downloadUrl before entering downloadUrl method: '%s', regex: '%s'", urlString, repoInConfigFile.Regex)
 		du, err := DownloadUrl(repoInConfigFile.Url, repoInConfigFile.Regex, urlString)
 		if err != nil {
 			return err
@@ -252,7 +252,7 @@ func (n Npm) Publish() error {
 func (n Npm) Read() error {
 	reqUrlString := strings.Replace(n.RequestURI, "%2f", "/", -1)
 	if filepath.Ext(reqUrlString) != ".tgz" {
-		log.Debugf("file: '%s' does not have an extension", reqUrlString)
+		log.Tracef("file: '%s' does not have an extension", reqUrlString)
 		reqUrlString = reqUrlString + ".tmp"
 	}
 	if err := ReadFromDisk(n.ResponseWriter, reqUrlString); err != nil {

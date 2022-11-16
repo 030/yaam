@@ -40,7 +40,7 @@ func maven(url string, repoInConfigFile PublicRepository) (artefact, error) {
 }
 
 func (m Maven) downloadAgainIfInvalid(a artefact, resp *http.Response) error {
-	log.Debug(resp.StatusCode)
+	log.Trace(resp.StatusCode)
 	if resp.StatusCode == http.StatusOK {
 		if err := file.CreateIfDoesNotExistInvalidOrEmpty(a.url, a.path, resp.Body, false); err != nil {
 			return err
@@ -61,7 +61,7 @@ func (m Maven) Preserve(urlStrings ...string) error {
 	if len(urlStrings) > 0 {
 		urlString = urlStrings[0]
 	}
-	log.Debugf("urlString: '%s'", urlString)
+	log.Tracef("urlString: '%s'", urlString)
 
 	repoInConfigFile, err := RepoInConfigFile(m.ResponseWriter, urlString, "maven")
 	if err != nil {
@@ -116,7 +116,7 @@ func (m Maven) Unify(name string) error {
 
 	log.Debugf("repos: '%v'", repos)
 	for _, repo := range repos {
-		log.Debugf("repo: '%s'", repo)
+		log.Tracef("repo: '%s'", repo)
 		urlString := "/" + repo + "/" + m.RequestURI
 		log.Debugf("urlString: '%s'", urlString)
 

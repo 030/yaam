@@ -29,6 +29,7 @@ func allowedRepos(name string) ([]string, error) {
 
 	return repos, nil
 }
+
 func createHomeAndReturnPath(requestURI string) (string, error) {
 	h, err := project.RepositoriesHome()
 	if err != nil {
@@ -66,7 +67,7 @@ func createIfDoesNotExist(path string, requestBody io.ReadCloser) error {
 			return err
 		}
 	} else {
-		log.Debugf("file: '%s' exists already", path)
+		log.Tracef("file: '%s' exists already", path)
 	}
 	return nil
 }
@@ -105,7 +106,7 @@ func ReadFromDisk(w http.ResponseWriter, reqURL string) error {
 		return err
 	}
 
-	log.Debugf("reading file: '%s' from disk...", f)
+	log.Tracef("reading file: '%s' from disk...", f)
 	b, err := os.ReadFile(filepath.Clean(f))
 	if err != nil {
 		return err
@@ -131,21 +132,21 @@ func RepoInConfigFile(w http.ResponseWriter, urlString, artifactType string) (Pu
 	for repo, elements := range reposAndElements {
 		url, ok := elements.(map[string]interface{})["url"]
 		if ok {
-			log.Debugf("url: '%s'", url)
+			log.Tracef("url: '%s'", url)
 		}
 		user, ok := elements.(map[string]interface{})["user"]
 		if ok {
-			log.Debugf("user: '%s'", user)
+			log.Tracef("user: '%s'", user)
 		}
 		pass, ok := elements.(map[string]interface{})["pass"]
 		if ok {
-			log.Debug("pass: **********")
+			log.Tracef("pass: **********")
 		}
 
 		log.Debugf("trying to cache artifact from: '%s'...", urlString)
 
 		rr := repoRegex(repo, artifactType)
-		log.Debugf("repoRegex: '%s'", rr)
+		log.Tracef("repoRegex: '%s'", rr)
 
 		pr := PublicRepository{Name: repo, Regex: rr, Url: url.(string)}
 		if user != nil && pass != nil {
@@ -176,12 +177,12 @@ func repoRegex(repo, repoType string) string {
 }
 
 func repoInUrl(repoRegex, url string) (bool, error) {
-	log.Debugf("check whether url: '%s' contains repo according to regex: '%s'", url, repoRegex)
+	log.Tracef("check whether url: '%s' contains repo according to regex: '%s'", url, repoRegex)
 	match, err := regexp.MatchString(repoRegex, url)
 	if err != nil {
 		return false, err
 	}
-	log.Debugf("outcome regex check: '%t'", match)
+	log.Tracef("outcome regex check: '%t'", match)
 
 	return match, nil
 }
@@ -190,7 +191,7 @@ func DownloadUrl(publicRepoUrl, regex, url string) (string, error) {
 	log.Debugf("check whether url: '%s' matches regex: '%s'. Params -> publicRepoUrl: '%s', regex: '%s' and url: '%s'", url, regex, publicRepoUrl, regex, url)
 	r := regexp.MustCompile(regex)
 	match := r.FindStringSubmatch(url)
-	log.Debugf("number of matching elements: %d. Content: '%v'", len(match), match)
+	log.Tracef("number of matching elements: %d. Content: '%v'", len(match), match)
 	if len(match) != 2 {
 		return "", fmt.Errorf("should be 3! publicRepoUrl: '%s', regex: '%s', url: '%s'", publicRepoUrl, regex, url)
 	}

@@ -3,6 +3,7 @@ module github.com/030/yaam
 go 1.19
 
 require (
+	github.com/030/logging v0.1.0
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/go-retryablehttp v0.7.1
 	github.com/mitchellh/go-homedir v1.1.0
