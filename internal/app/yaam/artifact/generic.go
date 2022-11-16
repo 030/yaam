@@ -34,7 +34,7 @@ func (g Generic) Read() error {
 	}
 
 	filename := filepath.Base(f)
-	log.Debugf("determined filename: '%s' in file: '%s'", filename, f)
+	log.Tracef("determined filename: '%s' in file: '%s'", filename, f)
 
 	if _, exists := file.Exists(f); !exists {
 		return fmt.Errorf("file: '%s' not found on disk", f)

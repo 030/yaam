@@ -11,7 +11,7 @@ import (
 )
 
 func validate(requestURI string) error {
-	log.Debugf("requestURI: '%s'", requestURI)
+	log.Tracef("requestURI: '%s'", requestURI)
 	dir := filepath.Dir(requestURI)
 	ext := filepath.Ext(requestURI)
 	if dir == "/" || ext == "" {
