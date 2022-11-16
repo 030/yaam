@@ -73,7 +73,7 @@ func CreateIfDoesNotExistInvalidOrEmpty(url, f string, body io.ReadCloser, inval
 			return err
 		}
 	}
-	log.Infof("downloaded: '%s' to: '%s'. Wrote: '%d' bytes", url, f, written)
+	log.Debugf("downloaded: '%s' to: '%s'. Wrote: '%d' bytes", url, f, written)
 
 	return nil
 }

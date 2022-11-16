@@ -50,7 +50,7 @@ func Home() (string, error) {
 	if os.Getenv("YAAM_HOME") != "" {
 		h = os.Getenv("YAAM_HOME")
 	}
-	log.Debugf("yaam home: '%s'", h)
+	log.Tracef("yaam home: '%s'", h)
 
 	return h, nil
 }

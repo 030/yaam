@@ -17,7 +17,7 @@ type Apt struct {
 }
 
 func (a Apt) downloadAgainIfInvalid(atf artefact, resp *http.Response) error {
-	log.Debug(resp.StatusCode)
+	log.Trace(resp.StatusCode)
 	if resp.StatusCode == http.StatusOK {
 		if err := file.CreateIfDoesNotExistInvalidOrEmpty(atf.url, atf.path, resp.Body, false); err != nil {
 			return err
@@ -38,7 +38,7 @@ func (a Apt) Preserve(urlStrings ...string) error {
 	if len(urlStrings) > 0 {
 		urlString = urlStrings[0]
 	}
-	log.Debugf("urlString: '%s'", urlString)
+	log.Tracef("urlString: '%s'", urlString)
 
 	repoInConfigFile, err := RepoInConfigFile(a.ResponseWriter, urlString, "apt")
 	if err != nil {

@@ -108,7 +108,7 @@ Start YAAM:
 
 ```bash
 docker run \
-  -e YAAM_DEBUG=false \
+  -e YAAM_LOG_LEVEL=trace \
   -e YAAM_USER=hello \
   -e YAAM_PASS=world \
   --rm \
