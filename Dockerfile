@@ -1,4 +1,4 @@
-FROM golang:1.19.1-alpine3.16 as builder
+FROM golang:1.19.3-alpine3.16 as builder
 ARG VERSION
 ENV USERNAME=yaam
 ENV BASE=/opt/${USERNAME}
@@ -11,7 +11,7 @@ RUN apk add --no-cache curl=~7 git=~2 && \
   chmod +x user.sh && \
   ./user.sh
 
-FROM alpine:3.16.2
+FROM alpine:3.16.3
 ENV BIN=/usr/local/bin/
 ENV USERNAME=yaam
 ENV BASE=/opt/${USERNAME}
