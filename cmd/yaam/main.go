@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/030/logging/pkg/logging"
@@ -198,7 +199,11 @@ func main() {
 	if logLevelEnv != "" {
 		logLevel = logLevelEnv
 	}
-	l := logging.Logging{File: "yaam.log", Level: logLevel, Syslog: true}
+	h, err := project.Home()
+	if err != nil {
+		log.Fatal(err)
+	}
+	l := logging.Logging{File: filepath.Join(h, "yaam.log"), Level: logLevel, Syslog: true}
 	if _, err := l.Setup(); err != nil {
 		log.Fatal(err)
 	}

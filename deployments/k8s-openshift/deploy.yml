@@ -190,6 +190,7 @@ metadata:
   name: repositories
 spec:
   volumeName: repositories
+  storageClassName: standard
   accessModes:
     - ReadWriteOnce
   resources:
