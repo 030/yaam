@@ -125,8 +125,8 @@ spec:
       containers:
         - name: yaam
           env:
-            - name: YAAM_DEBUG
-              value: 'true'
+            - name: YAAM_LOG_LEVEL
+              value: info
             - name: YAAM_HOST
               value: yaam.some-domain
             - name: YAAM_USER
@@ -139,7 +139,7 @@ spec:
                 secretKeyRef:
                   name: creds
                   key: pass
-          image: utrecht/yaam:v0.5.1
+          image: utrecht/yaam:v0.5.2
           livenessProbe:
             httpGet:
               path: /status
@@ -163,6 +163,8 @@ spec:
               mountPath: /opt/yaam/.yaam
             - name: repositories
               mountPath: /opt/yaam/.yaam/repositories
+            - name: logs
+              mountPath: /opt/yaam/.yaam/logs
       volumes:
         - name: conf
           configMap:
@@ -170,6 +172,9 @@ spec:
         - name: repositories
           persistentVolumeClaim:
             claimName: repositories
+        - name: logs
+          persistentVolumeClaim:
+            claimName: logs
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -182,7 +187,20 @@ spec:
   capacity:
     storage: 2Gi
   hostPath:
-    path: /repositories/
+    path: /opt/yaam/repositories/
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: logs
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 2Gi
+  hostPath:
+    path: /opt/yaam/logs/
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -190,6 +208,20 @@ metadata:
   name: repositories
 spec:
   volumeName: repositories
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs
+spec:
+  volumeName: logs
+  storageClassName: standard
   accessModes:
     - ReadWriteOnce
   resources:

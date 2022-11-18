@@ -2,11 +2,14 @@
 ## [Unreleased]
 
 
+<a name="v0.5.2"></a>
+## [v0.5.2] - 2022-11-18
+### Fix
+- [[#53](https://github.com/030/yaam/issues/53)] StorageClassName in PVC required in newer k8s versions.
+
+
 <a name="v0.5.1"></a>
 ## [v0.5.1] - 2022-11-16
-### Build
-- **deps:** Update versions.
-
 ### Fix
 - Publish code coverage by using v3 action.
 
@@ -61,7 +64,8 @@
 <a name="v0.2.1"></a>
 ## v0.2.1 - 2022-08-23
 
-[Unreleased]: https://github.com/030/yaam/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/030/yaam/compare/v0.5.2...HEAD
+[v0.5.2]: https://github.com/030/yaam/compare/v0.5.1...v0.5.2
 [v0.5.1]: https://github.com/030/yaam/compare/v0.5.0...v0.5.1
 [v0.5.0]: https://github.com/030/yaam/compare/v0.4.2...v0.5.0
 [v0.4.2]: https://github.com/030/yaam/compare/v0.4.1...v0.4.2
