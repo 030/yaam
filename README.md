@@ -117,7 +117,7 @@ docker run \
   --name=yaam \
   -it \
   -v /home/${USER}/.yaam:/opt/yaam/.yaam \
-  -p 25213:25213 utrecht/yaam:v0.5.3
+  -p 25213:25213 utrecht/yaam:v0.5.4
 ```
 
 Once YAAM has been started, configure a project to ensure that artifacts will
