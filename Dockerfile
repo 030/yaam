@@ -11,7 +11,7 @@ RUN apk add --no-cache curl=~7 git=~2 && \
   chmod +x user.sh && \
   ./user.sh
 
-FROM alpine:3.17.0
+FROM alpine:3.17.1
 ENV BIN=/usr/local/bin/
 ENV USERNAME=yaam
 ENV BASE=/opt/${USERNAME}

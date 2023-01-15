@@ -1,0 +1,71 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: yaam
+  labels:
+    app: yaam
+spec:
+  serviceName: yaam
+  selector:
+    matchLabels:
+      app: yaam
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: yaam
+    spec:
+      containers:
+        - name: yaam
+          env:
+            - name: YAAM_LOG_LEVEL
+              value: info
+            - name: YAAM_HOST
+              value: yaam.some-domain
+            - name: YAAM_USER
+              valueFrom:
+                secretKeyRef:
+                  name: creds
+                  key: user
+            - name: YAAM_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: creds
+                  key: pass
+          image: '{{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}'
+          livenessProbe:
+            httpGet:
+              path: /status
+              port: 25213
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: 25213
+          resources:
+            limits:
+              cpu: 480m
+              memory: 30Mi
+            requests:
+              cpu: 96m
+              memory: 5Mi
+          ports:
+            - containerPort: 25213
+              name: yaam
+          volumeMounts:
+            - name: conf
+              mountPath: /opt/yaam/.yaam
+            - name: repositories
+              mountPath: /opt/yaam/.yaam/repositories
+            - mountPath: /opt/yaam/.yaam/logs
+              name: logs
+      volumes:
+        - name: conf
+          secret:
+            secretName: conf
+        - name: repositories
+          persistentVolumeClaim:
+            claimName: repositories
+        - name: logs
+          emptyDir:
+            sizeLimit: 50Mi

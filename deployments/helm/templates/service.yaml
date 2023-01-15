@@ -1,0 +1,15 @@
+{{- if .Values.service.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yaam
+  labels:
+    app: yaam
+spec:
+  ports:
+    - port: {{ .Values.service.port }}
+      name: yaam
+  selector:
+    app: yaam
+{{- end }}

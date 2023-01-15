@@ -1,0 +1,24 @@
+{{- if .Values.autoscaling.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: yaam
+spec:
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.autoscaling.stabilizationWindowSeconds }}
+  metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: {{ .Values.autoscaling.averageCpuUtilization }}
+          type: Utilization
+      type: Resource
+  minReplicas: {{ .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: yaam
+{{- end }}
