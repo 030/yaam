@@ -2,11 +2,8 @@
 ## [Unreleased]
 
 
-<a name="v0.5.4"></a>
-## [v0.5.4] - 2022-12-27
-### Build
-- **deps:** Update versions.
-
+<a name="0.6.0"></a>
+## [0.6.0] - 2023-01-15
 
 <a name="v0.5.3"></a>
 ## [v0.5.3] - 2022-11-27
@@ -76,8 +73,8 @@
 <a name="v0.2.1"></a>
 ## v0.2.1 - 2022-08-23
 
-[Unreleased]: https://github.com/030/yaam/compare/v0.5.4...HEAD
-[v0.5.4]: https://github.com/030/yaam/compare/v0.5.3...v0.5.4
+[Unreleased]: https://github.com/030/yaam/compare/0.6.0...HEAD
+[0.6.0]: https://github.com/030/yaam/compare/v0.5.3...0.6.0
 [v0.5.3]: https://github.com/030/yaam/compare/v0.5.2...v0.5.3
 [v0.5.2]: https://github.com/030/yaam/compare/v0.5.1...v0.5.2
 [v0.5.1]: https://github.com/030/yaam/compare/v0.5.0...v0.5.1

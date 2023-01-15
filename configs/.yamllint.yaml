@@ -2,4 +2,5 @@
 extends: default
 
 ignore: |
+  deployments/helm/
   test/npm/demo/node_modules/

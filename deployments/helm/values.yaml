@@ -1,0 +1,64 @@
+---
+autoscaling:
+  averageCpuUtilization: 90
+  enabled: true
+  maxReplicas: 10
+  minReplicas: 2
+  stabilizationWindowSeconds: 30
+
+image:
+  repository: utrecht/yaam
+  # By default, the appVersion is set
+  # tag: v0.5.3
+
+ingress:
+  enabled: true
+  hosts:
+    - host: yaam.some-domain
+      paths:
+        - path: /
+          pathType: Prefix
+
+secret:
+  conf: |
+    caches:
+      apt:
+        3rdparty-ubuntu-nl-archive:
+          url: http://nl.archive.ubuntu.com/ubuntu/
+      maven:
+        3rdparty-maven:
+          url: https://repo.maven.apache.org/maven2/
+        3rdparty-maven-gradle-plugins:
+          url: https://plugins.gradle.org/m2/
+        3rdparty-maven-spring:
+          url: https://repo.spring.io/release/
+        other-nexus-repo-releases:
+          url: https://some-nexus/repository/some-repo/
+          user: some-user
+          pass: some-pass
+      npm:
+        3rdparty-npm:
+          url: https://registry.npmjs.org/
+    groups:
+      maven:
+        hello:
+          - maven/releases
+          - maven/3rdparty-maven
+          - maven/3rdparty-maven-gradle-plugins
+          - maven/3rdparty-maven-spring
+          - maven/other-nexus-repo-releases
+    publications:
+      generic:
+        - something
+      maven:
+        - releases
+      npm:
+        - 3rdparty-npm
+  enabled: true
+  pass: d29ybGQ=
+  user: aGVsbG8=
+
+service:
+  enabled: true
+  port: 25213
+  type: ClusterIP
