@@ -1,0 +1,16 @@
+---
+defaults: &defaults
+  directory: '/'
+  reviewers:
+    - '030'
+  schedule:
+    interval: 'daily'
+
+version: 2
+updates:
+  - package-ecosystem: 'docker'
+    <<: *defaults
+  - package-ecosystem: 'github-actions'
+    <<: *defaults
+  - package-ecosystem: 'gomod'
+    <<: *defaults
