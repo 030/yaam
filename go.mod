@@ -3,7 +3,7 @@ module github.com/030/yaam
 go 1.19
 
 require (
-	github.com/030/logging v0.1.1
+	github.com/030/logging v0.1.2
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/go-retryablehttp v0.7.1
 	github.com/mitchellh/go-homedir v1.1.0
@@ -32,7 +32,7 @@ require (
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
-	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/sys v0.4.0 // indirect
 	golang.org/x/text v0.5.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
