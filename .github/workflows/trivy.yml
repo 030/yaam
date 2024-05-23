@@ -12,7 +12,7 @@ jobs:
         run: |
           docker build -t utrecht/yaam:${{ github.sha }} .
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
+        uses: aquasecurity/trivy-action@fd25fed6972e341ff0007ddb61f77e88103953c2
         with:
           image-ref: 'utrecht/yaam:${{ github.sha }}'
           format: sarif
