@@ -9,7 +9,7 @@ import (
 
 	"github.com/030/yaam/internal/app/yaam/project"
 	"github.com/030/yaam/internal/app/yaam/yaamtest"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func init() {
@@ -21,6 +21,7 @@ func init() {
 		log.Fatal(err)
 	}
 }
+
 func TestStoreOnDisk(t *testing.T) {
 	s := strings.NewReader("Hola mundo!")
 	rc := io.NopCloser(s)

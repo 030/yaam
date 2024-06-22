@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/030/yaam/internal/app/yaam/yaamtest"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFirstMatch(t *testing.T) {

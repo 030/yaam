@@ -17,7 +17,7 @@ var (
 )
 
 func gradleFile(content []byte, name string) error {
-	if err := os.WriteFile(filepath.Join(gradleHomeDemoProject, name+".gradle"), content, 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(gradleHomeDemoProject, name+".gradle"), content, 0o600); err != nil {
 		return err
 	}
 	return nil

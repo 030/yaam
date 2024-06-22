@@ -71,7 +71,7 @@ func Config() error {
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 		return err
 	}
-	if err := os.WriteFile(filepath.Join(dir, "config.yml"), []byte(conf), 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "config.yml"), []byte(conf), 0o600); err != nil {
 		return err
 	}
 

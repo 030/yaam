@@ -7,13 +7,12 @@ import (
 	"testing"
 
 	"github.com/030/yaam/internal/app/yaam/yaamtest"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestExists(t *testing.T) {
 	_, exists := Exists("does-not-exist")
 	assert.Equal(t, false, exists)
-
 }
 
 func TestEmptyFile(t *testing.T) {

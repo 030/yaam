@@ -1,17 +1,17 @@
-FROM golang:1.19.4-alpine3.17 as builder
+FROM golang:1.22.4-alpine3.19 as builder
 ARG VERSION
 ENV USERNAME=yaam
 ENV BASE=/opt/${USERNAME}
 COPY . /go/${USERNAME}/
 WORKDIR /go/${USERNAME}/cmd/${USERNAME}/
-RUN apk add --no-cache curl=~7 git=~2 && \
+RUN apk add --no-cache curl=~8 git=~2 && \
   CGO_ENABLED=0 go build -ldflags "-X main.Version=${VERSION}" -buildvcs=false && \
   curl -sL https://gist.githubusercontent.com/030/54fc7ae735a163c09dcf6f3699d87e81/raw/b82514f50525e0ebf843e0dbf9bef1a382ccd40f/openshift-docker-user-entrypoint.sh > entrypoint.sh && \
   curl -sL https://gist.githubusercontent.com/030/34a2bf3f7f1cd427dc36c86dcb1e8cf7/raw/e1be7ef3c2c1a8441e406a669a0f6b6d97dcc984/openshift-docker-user.sh > user.sh && \
   chmod +x user.sh && \
   ./user.sh
 
-FROM alpine:3.17.0
+FROM alpine:3.20.1
 ENV BIN=/usr/local/bin/
 ENV USERNAME=yaam
 ENV BASE=/opt/${USERNAME}

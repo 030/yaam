@@ -7,7 +7,7 @@ import (
 	"github.com/030/yaam/internal/app/yaam/project"
 	"github.com/030/yaam/internal/app/yaam/yaamtest"
 	log "github.com/sirupsen/logrus"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func init() {

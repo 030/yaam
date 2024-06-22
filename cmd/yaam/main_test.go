@@ -10,7 +10,7 @@ import (
 
 	"github.com/030/yaam/internal/app/yaam/project"
 	"github.com/030/yaam/internal/app/yaam/yaamtest"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -49,7 +49,7 @@ func TestMainNpmBuild(t *testing.T) {
 	assert.Equal(t, 0, exitCode)
 }
 
-// Apt
+// Apt.
 func TestApt(t *testing.T) {
 	resp, _ := yaamtest.GenericArtifactReq("GET", aptUri, nil)
 	defer func() {
@@ -73,7 +73,7 @@ subsequently publish a Maven artifact.
 - GradleCleanBuildGroup
 - GradleCleanBuildGroupFail
 - GradlePublish
-- GradlePublishFail
+- GradlePublishFail.
 */
 func TestGradleCleanBuildGroup(t *testing.T) {
 	repos := []string{"maven/groups/hello"}
@@ -124,7 +124,7 @@ Generic: upload an Ubuntu.iso and download it.
 - Upload
 - UploadFail
 - Download
-- DownloadFail
+- DownloadFail.
 */
 func TestGenericArtifactUpload(t *testing.T) {
 	if err := yaamtest.GenericArtifact(); err != nil {
