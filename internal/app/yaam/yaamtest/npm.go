@@ -27,7 +27,7 @@ func NpmConfig() (int, error) {
 
 	npmrcWithCacheLocation := npmrc + `
 cache=` + testDirNpm + `/cache` + time.Now().Format("20060102150405111") + ``
-	if err := os.WriteFile(filepath.Join(npmHomeDemoProject, ".npmrc"), []byte(npmrcWithCacheLocation), 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(npmHomeDemoProject, ".npmrc"), []byte(npmrcWithCacheLocation), 0o600); err != nil {
 		return 1, err
 	}
 

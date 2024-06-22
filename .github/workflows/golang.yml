@@ -1,5 +1,5 @@
 ---
-name: Docker
+name: Golang
 'on':
   # required by gomod-go-version-updater to trigger this action once pr has
   # been reviewed
@@ -7,11 +7,8 @@ name: Docker
     types: [submitted]
   push:
 jobs:
-  mcvs-docker-action:
+  mcvs-golang-action:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4.1.7
-      - uses: schubergphilis/mcvs-docker-action@v0.5.2
-        with:
-          dockle-accept-key: curl,HOME,libcrypto3,libssl3,PATH
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: schubergphilis/mcvs-golang-action@v0.6.1

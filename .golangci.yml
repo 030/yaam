@@ -1,0 +1,110 @@
+---
+issues:
+  exclude-rules:
+    - linters:
+        - gochecknoinits
+      path: cmd/yaam/main_test.go
+      text: "don't use `init` function"
+    - linters:
+        - gochecknoinits
+      path: internal/app/yaam/artifact/artifact_test.go
+      text: "don't use `init` function"
+    - linters:
+        - gochecknoinits
+      path: internal/app/yaam/artifact/validate_test.go
+      text: "don't use `init` function"
+    - linters:
+        - gocognit
+      path: internal/app/path/to/some/file.go
+      text: 'cognitive complexity 71'
+linters:
+  enable-all: true
+  disable:
+    - bodyclose
+    - cyclop
+    - durationcheck
+    - errorlint
+    - exhaustruct
+    - forbidigo
+    - forcetypeassert
+    - gochecknoglobals
+    - goconst
+    - gocritic
+    - goerr113
+    - golint
+    - gomnd
+    - lll
+    - nestif
+    - nlreturn
+    - noctx
+    - nonamedreturns
+    - paralleltest
+    - perfsprint
+    - revive
+    - stylecheck
+    - testifylint
+    - testpackage
+    - usestdlibvars
+    - varnamelen
+    - wrapcheck
+    - wsl
+    #
+    # The following linters have been deprecated
+    #
+    - maligned
+    - ifshort
+    - structcheck
+    - exhaustivestruct
+    - scopelint
+    - deadcode
+    - nosnakecase
+    - interfacer
+    - varcheck
+linters-settings:
+  depguard:
+    # Rules to apply.
+    #
+    # Variables:
+    # - File Variables
+    #   you can still use and exclamation mark ! in front of a variable to say
+    #   not to use it.
+    #   Example !$test will match any file that is not a go test file.
+    #
+    #   `$all` - matches all go files
+    #   `$test` - matches all go test files
+    #
+    # - Package Variables
+    #
+    #  `$gostd` - matches all of go's standard library (Pulled from `GOROOT`)
+    #
+    # Default: Only allow $gostd in all files.
+    rules:
+      # Name of a rule.
+      main:
+        # List of file globs that will match this list of settings to compare
+        # against.
+        # Default: $all
+        files:
+          - '!**/*_a _file.go'
+        # List of allowed packages.
+        allow:
+          - $gostd
+          - github.com/030/logging/pkg/logging
+          - github.com/030/yaam/internal/app/yaam/api
+          - github.com/030/yaam/internal/app/yaam/artifact
+          - github.com/030/yaam/internal/app/yaam/file
+          - github.com/030/yaam/internal/app/yaam/project
+          - github.com/030/yaam/internal/app/yaam/yaamtest
+          - github.com/gorilla/mux
+          - github.com/hashicorp/go-retryablehttp
+          - github.com/mitchellh/go-homedir
+          - github.com/sirupsen/logrus
+          - github.com/spf13/viper
+          - github.com/stretchr/testify/assert
+          - github.com/tidwall/gjson
+        # Packages that are not allowed where the value is a suggestion.
+        deny:
+          # - pkg: 'github.com/sirupsen/logrus'
+          #   desc: not allowed
+          - pkg: 'github.com/pkg/errors'
+            desc: Should be replaced by standard lib errors package
